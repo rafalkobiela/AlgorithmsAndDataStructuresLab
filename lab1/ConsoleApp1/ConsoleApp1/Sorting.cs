@@ -90,20 +90,20 @@ namespace ASD
         public int[] ShellSort(int[] tab)
         {
 
-            int n = tab.Length;
+            int n = tab.Length-1;
             int h = 2;
-            while (h - 1 < n / 2)
+            while(h - 1 < n / 2)
             {
                 h *= 2;
             }
             h--;
-            while (h >= 1)
+            while (h >= 0)
             {
-                for (int j = h + 1; j < n; j++)
+                for (int j = h; j <= n; j++)
                 {
                     int v = tab[j];
                     int i = j - h;
-                    while (i > 0 && tab[i] > v)
+                    while (i >= 0 && tab[i] > v)
                     {
                         tab[i + h] = tab[i];
                         i -= h;
@@ -113,20 +113,7 @@ namespace ASD
                 h = ((h + 1) / 2) - 1;
             }
 
-
-            for (int i = 0; i < tab.Length - 1; i++)
-            {
-                int tmp;
-                tmp = tab[i];
-                if (tab[i] > tab[i + 1])
-                {
-                    tmp = tab[i + 1];
-                    tab[i + 1] = tab[i];
-                    tab[i] = tmp;
-                }
-
-            }
-
+            
             return tab;
         }
 

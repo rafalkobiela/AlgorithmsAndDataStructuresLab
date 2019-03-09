@@ -137,10 +137,21 @@ class Lab01
 
     static void Main(string[] args)
         {
-        SortingTestModule sortingTests = new SortingTestModule();
-        sortingTests.PrepareTestSets();
-        foreach (var ts in sortingTests.TestSets)
-            ts.Value.PerformTests(false);
+
+            //var a = new SortingMethods();
+
+            //int[] tab = new int[] { 9,6,4,7,2,6 };
+
+            //for(int i = 0; i<tab.Length; i++)
+            //{
+            //Console.Write(a.ShellSort(tab)[i].ToString() + ", " );
+            //}
+
+
+            SortingTestModule sortingTests = new SortingTestModule();
+            sortingTests.PrepareTestSets();
+            foreach (var ts in sortingTests.TestSets)
+                ts.Value.PerformTests(false);
         }
 
     }
