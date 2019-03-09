@@ -14,70 +14,64 @@ namespace ASD
         public int Partition(int l, int r, ref int[] A)
         {
 
-            int v = A[l];
-            int i = l;
-            int j = r + 1;
-            do
+            int mid = (l + r) / 2;
+
+            if (A[mid] < A[l])
             {
+                int tmp = A[l];
+                A[l] = A[mid];
+                A[mid] = tmp;
+
+            }
+            if (A[r] < A[l])
+            {
+
+                int tmp = A[l];
+                A[l] = A[r];
+                A[r] = tmp;
+            }
+            if (A[mid] < A[r])
+            {
+                int tmp = A[mid];
+                A[mid] = A[r];
+                A[r] = tmp;
+
+            }
+            int pivot = A[r];
+            int i = l - 1;
+            int j = r + 1;
+            while (true)
+            {
+
                 do
                 {
                     i++;
-                } while (A[i] < v);
+                } while (A[i] < pivot);
                 do
                 {
                     j--;
-                } while (A[j] > v);
-                if (i < j)
+                } while (A[j] > pivot);
+                if (i >= j)
                 {
-                    int tmp = A[i];
-                    A[i] = A[j];
-                    A[j] = tmp;
+                    return j;
                 }
-            } while (i < j);
-            A[l] = A[j];
-            A[j] = v;
-
-            return j;
-        }
-
-        public int Partition2(int l, int r, ref int[] A)
-        {
-            int tmp;
-            int v = A[r];
-            int i = l - 1;
-
-            for (int j = l; j <= r - 1; j++)
-            {
-                if (A[j] <= v)
-                {
-                    i++;
-                    tmp = A[i];
-                    A[i] = A[j];
-                    A[j] = tmp;
-                }
+                int tmp = A[i];
+                A[i] = A[j];
+                A[j] = tmp;
             }
 
-            tmp = A[i + 1];
-            A[i + 1] = A[r];
-            A[r] = tmp;
-
-
-
-
-            return i + 1;
         }
 
         public void QuickSort(int l, int r, ref int[] tab)
         {
-            int j = Partition2(l, r, ref tab);
-            if (j - 1 > l)
+
+            if (l < r)
             {
-                QuickSort(l, j - 1, ref tab);
+                int p = Partition(l, r, ref tab);
+                QuickSort(l, p, ref tab);
+                QuickSort(p + 1, r, ref tab);
             }
-            if (j + 1 < r)
-            {
-                QuickSort(j + 1, r, ref tab);
-            }
+
         }
 
 
@@ -89,8 +83,6 @@ namespace ASD
                 return tab;
             }
             QuickSort(0, tab.Length - 1, ref tab);
-
-
 
             return tab;
         }
@@ -134,46 +126,46 @@ namespace ASD
                 }
 
             }
+
             return tab;
         }
 
-
         private int heapSize;
-        private void BuildHeap(int[] arr)
+        private void BuildHeap(int[] tab)
         {
-            heapSize = arr.Length - 1;
+            heapSize = tab.Length - 1;
             for (int i = heapSize / 2; i >= 0; i--)
             {
-                Heap(arr, i);
+                Heap(tab, i);
             }
         }
-        private void Heap(int[] arr, int index)
+        private void Heap(int[] tab, int i)
         {
-            int left = 2 * index;
-            int right = 2 * index + 1;
-            int largest = index;
+            int l = 2 * i;
+            int r = 2 * i + 1;
+            int largest = i;
 
-            if (left <= heapSize && arr[left] > arr[index])
+            if (l <= heapSize && tab[l] > tab[i])
             {
-                largest = left;
+                largest = l;
             }
 
-            if (right <= heapSize && arr[right] > arr[largest])
+            if (r <= heapSize && tab[r] > tab[largest])
             {
-                largest = right;
+                largest = r;
             }
 
-            if (largest != index)
+            if (largest != i)
             {
-
-                int tmp = arr[index];
-                arr[index] = arr[largest];
-                arr[largest] = tmp;
-                Heap(arr, largest);
+                int tmp = tab[i];
+                tab[i] = tab[largest];
+                tab[largest] = tmp;
+                Heap(tab, largest);
             }
         }
         public int[] HeapSort(int[] tab)
         {
+
             BuildHeap(tab);
             for (int i = tab.Length - 1; i >= 0; i--)
             {
@@ -184,50 +176,51 @@ namespace ASD
                 heapSize--;
                 Heap(tab, 0);
             }
-            
+
             return tab;
         }
 
-        public int[] merge(int[] left, int[] right)
+        public int[] merge(int[] leftTab, int[] rightTab)
         {
-            int resultLength = right.Length + left.Length;
-            int[] result = new int[resultLength];
+            int[] result = new int[rightTab.Length + leftTab.Length];
 
-            int indexLeft = 0, indexRight = 0, indexResult = 0;
+            int l = 0;
+            int r = 0;
+            int i = 0;
 
-            while (indexLeft < left.Length || indexRight < right.Length)
+            while (l < leftTab.Length || r < rightTab.Length)
             {
 
-                if (indexLeft < left.Length && indexRight < right.Length)
+                if (l < leftTab.Length && r < rightTab.Length)
                 {
 
-                    if (left[indexLeft] <= right[indexRight])
+                    if (leftTab[l] <= rightTab[r])
                     {
-                        result[indexResult] = left[indexLeft];
-                        indexLeft++;
-                        indexResult++;
+                        result[i] = leftTab[l];
+                        l++;
+                        i++;
                     }
 
                     else
                     {
-                        result[indexResult] = right[indexRight];
-                        indexRight++;
-                        indexResult++;
+                        result[i] = rightTab[r];
+                        r++;
+                        i++;
                     }
                 }
 
-                else if (indexLeft < left.Length)
+                else if (l < leftTab.Length)
                 {
-                    result[indexResult] = left[indexLeft];
-                    indexLeft++;
-                    indexResult++;
+                    result[i] = leftTab[l];
+                    l++;
+                    i++;
                 }
 
-                else if (indexRight < right.Length)
+                else if (r < rightTab.Length)
                 {
-                    result[indexResult] = right[indexRight];
-                    indexRight++;
-                    indexResult++;
+                    result[i] = rightTab[r];
+                    r++;
+                    i++;
                 }
 
             }
@@ -239,54 +232,30 @@ namespace ASD
         {
 
 
-            int[] left;
-            int[] right;
-            int[] result = new int[tab.Length];
-
-
             if (tab.Length <= 1)
             {
                 return tab;
             }
 
-            int midPoint = tab.Length / 2;
+            int[] leftTab;
+            int[] rightTab;
 
+            int mid = tab.Length / 2;
+            leftTab = new int[mid];
+            rightTab = new int[tab.Length - leftTab.Length];
 
-            left = new int[midPoint];
-
-
-            if (tab.Length % 2 == 0)
+            for (int i = 0; i < mid; i++)
             {
-                right = new int[midPoint];
+                leftTab[i] = tab[i];
             }
 
-            else
+            for (int i = mid; i < tab.Length; i++)
             {
-                right = new int[midPoint + 1];
-            }
-
-            for (int i = 0; i < midPoint; i++)
-            {
-                left[i] = tab[i];
-            }
-
-            int x = 0;
-
-
-            for (int i = midPoint; i < tab.Length; i++)
-            {
-                right[x] = tab[i];
-                x++;
+                rightTab[i - mid] = tab[i];
             }
 
 
-            left = MergeSort(left);
-
-            right = MergeSort(right);
-
-            result = merge(left, right);
-
-            return result;
+            return merge(MergeSort(leftTab), MergeSort(rightTab));
 
         }
 
