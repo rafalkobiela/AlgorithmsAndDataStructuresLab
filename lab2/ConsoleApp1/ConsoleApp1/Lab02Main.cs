@@ -151,6 +151,25 @@ class Lab01
     static void Main(string[] args)
         {
 
+            //int[] a = new int[5];
+            //int[] b = new int[6];
+
+            //for(int i = 0; i<a.Length; i++)
+            //{
+            //    a[i] = i;
+            //    Console.Write(a[i] + ", ");
+            //}
+
+
+            //a.CopyTo(b, 0);
+            //Console.WriteLine();
+            //for (int i = 0; i < b.Length; i++)
+            //{
+
+            //    Console.Write(b[i] + ", ");
+            //}
+
+
 
             SortingTestModule sortingTests = new SortingTestModule();
             sortingTests.PrepareTestSets();

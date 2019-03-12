@@ -7,3 +7,12 @@ C:\Users\Rafał\Desktop\asd2-lab\lab2\ConsoleApp1\ConsoleApp1\bin\Debug\TestSet.
 C:\Users\Rafał\Desktop\asd2-lab\lab2\ConsoleApp1\ConsoleApp1\obj\Debug\ConsoleApp1.csproj.CopyComplete
 C:\Users\Rafał\Desktop\asd2-lab\lab2\ConsoleApp1\ConsoleApp1\obj\Debug\ConsoleApp1.exe
 C:\Users\Rafał\Desktop\asd2-lab\lab2\ConsoleApp1\ConsoleApp1\obj\Debug\ConsoleApp1.pdb
+C:\Users\rkobiela001\Desktop\AlgorithmsAndDataStructuresLab\lab2\ConsoleApp1\ConsoleApp1\bin\Debug\ConsoleApp1.exe.config
+C:\Users\rkobiela001\Desktop\AlgorithmsAndDataStructuresLab\lab2\ConsoleApp1\ConsoleApp1\bin\Debug\ConsoleApp1.exe
+C:\Users\rkobiela001\Desktop\AlgorithmsAndDataStructuresLab\lab2\ConsoleApp1\ConsoleApp1\bin\Debug\ConsoleApp1.pdb
+C:\Users\rkobiela001\Desktop\AlgorithmsAndDataStructuresLab\lab2\ConsoleApp1\ConsoleApp1\bin\Debug\TestSet.dll
+C:\Users\rkobiela001\Desktop\AlgorithmsAndDataStructuresLab\lab2\ConsoleApp1\ConsoleApp1\obj\Debug\ConsoleApp1.csprojAssemblyReference.cache
+C:\Users\rkobiela001\Desktop\AlgorithmsAndDataStructuresLab\lab2\ConsoleApp1\ConsoleApp1\obj\Debug\ConsoleApp1.csproj.CoreCompileInputs.cache
+C:\Users\rkobiela001\Desktop\AlgorithmsAndDataStructuresLab\lab2\ConsoleApp1\ConsoleApp1\obj\Debug\ConsoleApp1.csproj.CopyComplete
+C:\Users\rkobiela001\Desktop\AlgorithmsAndDataStructuresLab\lab2\ConsoleApp1\ConsoleApp1\obj\Debug\ConsoleApp1.exe
+C:\Users\rkobiela001\Desktop\AlgorithmsAndDataStructuresLab\lab2\ConsoleApp1\ConsoleApp1\obj\Debug\ConsoleApp1.pdb
