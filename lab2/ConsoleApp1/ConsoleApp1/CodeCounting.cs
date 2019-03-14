@@ -7,6 +7,27 @@ namespace ASD
     public class CodesCounting : MarshalByRefObject
     {
 
+        public bool CompareStrings(string text, int k, string suffix)
+        {
+
+            if(suffix.Length > k)
+            {
+                return false;
+            }
+
+            for (int i = 0; i<suffix.Length; i++)
+            {
+                
+                if (text[k - suffix.Length + i] != suffix[i])
+                {
+                    return false;
+                }
+            }
+
+
+            return true;
+
+        }
 
         public int CountCodes(string text, string[] codes, out int[][] solutions)
         {
@@ -31,7 +52,7 @@ namespace ASD
             {
                 for (int j = 0; j < codes.Length; j++)
                 {
-                    if (text.Substring(0, i).EndsWith(codes[j]))
+                    if (CompareStrings(text, i, codes[j]))
                     {
                         if (tab[i - codes[j].Length] != 0)
                         {
@@ -45,18 +66,13 @@ namespace ASD
                             var tmpTab = new int[z.Length + 1];
                             z.CopyTo(tmpTab, 0);
                             tmpTab[tmpTab.Length - 1] = j;
-                            //var tmpList = new List<int>(z);
-                            //tmpList.Add(j);
                             solList[i].Add(tmpTab);
                         }
                     }
                 }
             }
 
-
             solutions = new int[solList[solList.Length - 1].Count][];
-
-
 
             for (int i = 0; i < solutions.Length; i++)
             {
