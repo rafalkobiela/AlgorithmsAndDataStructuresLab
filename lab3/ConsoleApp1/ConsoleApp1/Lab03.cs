@@ -40,7 +40,7 @@ namespace ASD
 
         public int FindFirstNonZero(int[] tab)
         {
-            
+
             for (int i = 0; i < tab.Length; i++)
             {
                 if (tab[i] > 0)
@@ -73,39 +73,22 @@ namespace ASD
             var tab = (int[])sequence.Clone();
 
 
-            //Array.Sort(tab);
-            //Array.Reverse(tab);
+            Array.Sort(tab);
+            Array.Reverse(tab);
 
-            //tab = new int[] { 0, 0, 2,1,4,5,1,4 };
-            //Console.WriteLine();
-            //Console.WriteLine("----------");
-            //Console.WriteLine();
-            //for (int i = 0; i<tab.Length; i++)
-            //{
-            //    Console.Write(tab[i].ToString() + ", ");
-            //}
-            //Console.WriteLine();
-            //Console.WriteLine("----------");
-            //Console.WriteLine();
-            //InsertionSort(ref tab, 2);
-            //for (int i = 0; i < tab.Length; i++)
-            //{
-            //    Console.Write(tab[i].ToString() + ", ");
-            //}
-            //Console.WriteLine();
-            //Console.WriteLine("----------");
-
-
-            InsertionSort(ref tab);
-
-
+            int degSum = 0;
             for (int i = 0; i < tab.Length; i++)
             {
                 if (tab[i] < 0)
                 {
                     return false;
                 }
+                degSum += tab[i];
+            }
 
+            if (degSum % 2 != 0)
+            {
+                return false;
             }
 
             int start = 0;
@@ -117,15 +100,31 @@ namespace ASD
 
                 for (int i = start + 1; i <= tmp + start; i++)
                 {
-                    //PrintArr(tab);
                     if (i == tab.Length || --tab[i] < 0)
                     {
                         return false;
                     }
-
                 }
-                start++;
 
+                int nextZero = 0;
+                for (int i = 1; i < tab.Length - start; i++)
+                {
+                    if (start + i + 1 < tab.Length)
+                    {
+                        if (tab[start + i] == 0)
+                        {
+                            nextZero++;
+                        }
+                        else
+                        {
+                            break;
+                        }
+
+                    }
+                }
+                start += nextZero + 1;
+
+                //PrintArr(tab);
                 //Array.Sort(tab);
                 //Array.Reverse(tab);
                 InsertionSort(ref tab, start);
@@ -148,60 +147,85 @@ namespace ASD
             var newGraph = new AdjacencyListsGraph<AVLAdjacencyList>(false, sequence.Length);
             var tab = (int[])sequence.Clone();
 
-            Array.Sort(tab);
-            Array.Reverse(tab);
-            //bool isAllZero = true;
+            //Array.Sort(tab);
+            //Array.Reverse(tab);
+
 
             //for (int i = 0; i < tab.Length; i++)
             //{
-            //    if (tab[i] < 0)
+            //    int tmp = tab[i];
+            //    tab[i] = 0;
+            //    for (int j = i + 1; j <= i + tmp; j++)
             //    {
-            //        isAllZero = false;
+
+            //        if (i == tab.Length - 1 && j > tab.Length - 1)
+            //        {
+            //            newGraph.AddEdge(i, i);
+            //        }
+            //        else if (tab[j] == 0 && tmp == 2)
+            //        {
+            //            newGraph.AddEdge(i, i);
+            //        }
+            //        else if (tab[j] == 0 && tmp == 1)
+            //        {
+            //            newGraph.AddEdge(j + 1, i);
+            //            tab[j + 1]--;
+
+            //        }
+
+            //        if (j < tab.Length)
+            //        {
+            //            if (tab[j] > 0)
+            //            {
+            //                tab[j]--;
+            //                newGraph.AddEdge(j, i);
+            //            }
+            //        }
             //    }
-
             //}
-
-            //if (!isAllZero)
-            //{
-            //    return null;
-            //}
-
-            //if (isAllZero)
-            //{
-            //    return new AdjacencyListsGraph<AVLAdjacencyList>(false, sequence.Length); 
-            //}
-
-
-            for (int i = 0; i < tab.Length; i++)
+            Array.Sort(tab);
+            Array.Reverse(tab);
+            int n = tab.Length;
+            for (int i = 0; i < n; i++)
             {
-                int tmp = tab[i];
-                tab[i] = 0;
-                for (int j = i + 1; j <= i + tmp; j++)
+                //if(i > 1)
+                //{
+                //    newGraph.AddEdge(i, i);
+                //    tab[i]--;
+                //    tab[i]--;
+                //}
+                for (int j = i + 1; j < n; j++)
                 {
-
-                    if (i == tab.Length - 1 && j > tab.Length - 1)
+                    if (tab[i] == 0)
                     {
-                        newGraph.AddEdge(i, i);
-                    }
-                    else if (tab[j] == 0 && tmp == 2)
-                    {
-                        newGraph.AddEdge(i, i);
-                    }
-                    else if (tab[j] == 0 && tmp == 1)
-                    {
-                        newGraph.AddEdge(j + 1, i);
-                        tab[j + 1]--;
-
+                        break;
                     }
 
-                    if (j < tab.Length)
+                    if (tab[i] > 0 && tab[j] > 0)
                     {
-                        if (tab[j] > 0)
+
+                        //PrintArr(tab);
+                        tab[i]--;
+                        tab[j]--;
+                        newGraph.AddEdge(i, j);
+                        if (tab[i] == 0)
                         {
-                            tab[j]--;
-                            newGraph.AddEdge(j, i);
+                            break;
                         }
+                        //if (i == n - 1)
+                        //    newGraph.AddEdge(i, i);
+                        //mat[i][j] = 1;
+                        //mat[j][i] = 1;
                     }
+                }
+            }
+
+            for (int i = tab.Length - 1; i >= 0; i--)
+            {
+                if (tab[i] > 1)
+                {
+                    newGraph.AddEdge(i, i);
+                    break;
                 }
             }
 
@@ -214,32 +238,65 @@ namespace ASD
         public Graph MinimumSpanningTree(Graph graph, out double min_weight)
         {
 
+            //if (graph.Directed)
+            //{
+            //    throw new ArgumentException();
+            //}
+
+            //PriorityQueue<Edge, double> edgeQueue = new PriorityQueue<Edge, double>((e1, e2) => e1.Value < e2.Value);
+            //graph.GeneralSearchAll<EdgesQueue>(null, null, e => edgeQueue.Put(e, e.Weight), out int cc);
+
+            //min_weight = 0;
+            //Graph kruskalTree = graph.IsolatedVerticesGraph();
+
+
+            //UnionFind uf = new UnionFind(graph.VerticesCount);
+            //while (!edgeQueue.Empty)
+            //{
+            //    Edge e = edgeQueue.Get();
+
+            //    if (uf.Union(e.To, e.From))
+            //    {
+            //        min_weight += e.Weight;
+            //        uf.Union(e.From, e.To);
+            //        kruskalTree.AddEdge(e);
+            //    }
+            //}
+
+            //return kruskalTree;
+
             if (graph.Directed)
             {
                 throw new ArgumentException();
             }
 
-            PriorityQueue<Edge, double> edgeQueue = new PriorityQueue<Edge, double>((e1, e2) => e1.Value < e2.Value);
-            graph.GeneralSearchAll<EdgesQueue>(null, null, e => edgeQueue.Put(e, e.Weight), out int cc);
-
-            min_weight = 0;
-            Graph kruskalTree = graph.IsolatedVerticesGraph();
-
-
-            UnionFind uf = new UnionFind(graph.VerticesCount);
-            while (!edgeQueue.Empty)
+            UnionFind u = new UnionFind(graph.VerticesCount);
+            EdgesMinPriorityQueue q = new EdgesMinPriorityQueue();
+            Graph kurskalTree = graph.IsolatedVerticesGraph();
+            for (int i = 0; i < graph.VerticesCount; i++)
             {
-                Edge e = edgeQueue.Get();
-
-                if (uf.Find(e.From) != uf.Find(e.To))
+                foreach (var e in graph.OutEdges(i))
                 {
-                    min_weight += e.Weight;
-                    uf.Union(e.From, e.To);
-                    kruskalTree.AddEdge(e);
+                    if (e.To >= i)
+                    {
+                        q.Put(e);
+                    }
                 }
             }
+            min_weight = 0;       // zmienić
+            while (!q.Empty)
+            {
+                Edge e = q.Get();
+                if (/*u.Find(e.From) != u.Find(e.To) */ u.Union(e.From, e.To))
+                {
+                    //u.Union(e.From, e.To);
+                    kurskalTree.AddEdge(e);
+                    min_weight += e.Weight;
+                }
 
-            return kruskalTree;
+            }
+            return kurskalTree;  // zmienić
+
         }
     }
 }

@@ -205,7 +205,7 @@ namespace ASD
             sequences[6] = new int[] { 2, 3, 2, 3, 2 };
             is_graphic[6] = true;
             descriptions1[6] = "{ 2, 3, 2, 3, 2 }";
-
+ 
             sequences[7] = new int[] { 1, 1, 1, 1, 3 };
             is_graphic[7] = false;
             descriptions1[7] = "{ 1, 1, 1, 1, 3 }";

@@ -17,3 +17,4 @@ C:\Users\Rafał\Desktop\AlgorithmsAndDataStructuresLab\lab3\ConsoleApp1\ConsoleA
 C:\Users\Rafał\Desktop\AlgorithmsAndDataStructuresLab\lab3\ConsoleApp1\ConsoleApp1\obj\Debug\ConsoleApp1.csproj.CopyComplete
 C:\Users\Rafał\Desktop\AlgorithmsAndDataStructuresLab\lab3\ConsoleApp1\ConsoleApp1\obj\Debug\ConsoleApp1.exe
 C:\Users\Rafał\Desktop\AlgorithmsAndDataStructuresLab\lab3\ConsoleApp1\ConsoleApp1\obj\Debug\ConsoleApp1.pdb
+C:\Users\Rafał\Desktop\AlgorithmsAndDataStructuresLab\lab3\ConsoleApp1\ConsoleApp1\bin\Debug\Graph.dll
