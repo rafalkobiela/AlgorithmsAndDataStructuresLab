@@ -1,10 +1,25 @@
 ﻿using ASD.Graphs;
 using System;
+using System.Collections;
 
 namespace ASD
 {
+
+
+
     public class Lab03 : MarshalByRefObject
     {
+
+        public class ReverseComparer : IComparer
+        {
+            // Call CaseInsensitiveComparer.Compare with the parameters reversed.
+            public int Compare(Object x, Object y)
+            {
+                return -((IComparable)x).CompareTo(y);
+            }
+
+        }
+
         // Część 1
         //  Sprawdzenie czy podany ciąg stopni jest grafowy
         //  0.5 pkt
@@ -72,14 +87,14 @@ namespace ASD
         {
             var tab = (int[])sequence.Clone();
 
-
-            Array.Sort(tab);
-            Array.Reverse(tab);
-
+            IComparer revComparer = new ReverseComparer();
+            Array.Sort(tab, 0 , tab.Length, revComparer);
+            //Array.Reverse(tab);
+            //PrintArr(tab);
             int degSum = 0;
             for (int i = 0; i < tab.Length; i++)
             {
-                if (tab[i] < 0)
+                if (tab[i] < 0 )
                 {
                     return false;
                 }
@@ -91,46 +106,102 @@ namespace ASD
                 return false;
             }
 
-            int start = 0;
-            while (tab[start] > 0)
-            {
 
-                int tmp = tab[start];
-                tab[start] = 0;
+            //Pierwsze rozw
 
-                for (int i = start + 1; i <= tmp + start; i++)
-                {
-                    if (i == tab.Length || --tab[i] < 0)
-                    {
-                        return false;
-                    }
-                }
+                //int start = 0;
+                //while (tab[start] > 0)
+                //{
 
-                int nextZero = 0;
-                for (int i = 1; i < tab.Length - start; i++)
-                {
-                    if (start + i + 1 < tab.Length)
-                    {
-                        if (tab[start + i] == 0)
-                        {
-                            nextZero++;
-                        }
-                        else
-                        {
-                            break;
-                        }
+                //    int tmp = tab[start];
+                //    tab[start] = 0;
 
-                    }
-                }
-                start += nextZero + 1;
+                //    for (int i = start + 1; i <= tmp + start; i++)
+                //    {
+                //        if (i == tab.Length || --tab[i] < 0)
+                //        {
+                //            return false;
+                //        }
+                //    }
 
-                //PrintArr(tab);
-                //Array.Sort(tab);
-                //Array.Reverse(tab);
-                InsertionSort(ref tab, start);
-            }
+                //    int nextZero = 0;
+                //    for (int i = 1; i < tab.Length - start; i++)
+                //    {
+                //        if (start + i + 1 < tab.Length)
+                //        {
+                //            if (tab[start + i] == 0)
+                //            {
+                //                nextZero++;
+                //            }
+                //            else
+                //            {
+                //                break;
+                //            }
 
-            return true;
+                //        }
+                //    }
+                //    start += nextZero + 1;
+                //    Array.Sort(tab, start, Math.Min(tmp + start, tab.Length - start), revComparer);
+                //    //PrintArr(tab);
+                //}
+
+                //return true;
+
+
+                //Drugie rozw
+
+                //int n = tab.Length;
+                //for (int i = 0; i < n; i++)
+                //{
+
+                //    int tmp = tab[i];
+                //    for (int j = i + 1; j < n; j++)
+                //    {
+                //        if (tab[i] == 0)
+                //        {
+                //            break;
+                //        }
+
+                //        if (tab[i] > 0 && tab[j] > 0)
+                //        {
+
+                //            //PrintArr(tab);
+                //            tab[i]--;
+                //            tab[j]--;
+                //            if (tab[i] == 0)
+                //            {
+                //                break;
+                //            }
+
+                //        }
+                //    }
+                //}
+
+
+                //for (int i = 0; i < tab.Length; i++)
+                //{
+                //    if (i != 0)
+                //    {
+                //        if (tab[i]%2 == 0 && tab[i] > 0)
+                //        {
+                //            tab[i] -= 2;
+                //            i--;
+                //            //newGraph.AddEdge(i, i);
+                //            //break;
+                //        }
+                //    }
+                //}
+
+                ////PrintArr(tab);
+                //for(int i = 0; i< tab.Length; i++)
+                //{
+                //    if (tab[i] > 0)
+                //    {
+                //        return false;
+                //    }
+                //}
+
+                //return true;
         }
 
         //Część 2
@@ -139,61 +210,35 @@ namespace ASD
         public Graph ConstructGraph(int[] sequence)
         {
 
-            if (!IsGraphic(sequence))
+
+            int degSum = 0;
+            for (int i = 0; i < sequence.Length; i++)
+            {
+                if (sequence[i] < 0)
+                {
+                    return null;
+                }
+                degSum += sequence[i];
+            }
+
+            if (degSum % 2 != 0)
             {
                 return null;
             }
 
+
             var newGraph = new AdjacencyListsGraph<AVLAdjacencyList>(false, sequence.Length);
             var tab = (int[])sequence.Clone();
 
-            //Array.Sort(tab);
-            //Array.Reverse(tab);
-
-
-            //for (int i = 0; i < tab.Length; i++)
-            //{
-            //    int tmp = tab[i];
-            //    tab[i] = 0;
-            //    for (int j = i + 1; j <= i + tmp; j++)
-            //    {
-
-            //        if (i == tab.Length - 1 && j > tab.Length - 1)
-            //        {
-            //            newGraph.AddEdge(i, i);
-            //        }
-            //        else if (tab[j] == 0 && tmp == 2)
-            //        {
-            //            newGraph.AddEdge(i, i);
-            //        }
-            //        else if (tab[j] == 0 && tmp == 1)
-            //        {
-            //            newGraph.AddEdge(j + 1, i);
-            //            tab[j + 1]--;
-
-            //        }
-
-            //        if (j < tab.Length)
-            //        {
-            //            if (tab[j] > 0)
-            //            {
-            //                tab[j]--;
-            //                newGraph.AddEdge(j, i);
-            //            }
-            //        }
-            //    }
-            //}
             Array.Sort(tab);
             Array.Reverse(tab);
             int n = tab.Length;
+
+
+
             for (int i = 0; i < n; i++)
             {
-                //if(i > 1)
-                //{
-                //    newGraph.AddEdge(i, i);
-                //    tab[i]--;
-                //    tab[i]--;
-                //}
+
                 for (int j = i + 1; j < n; j++)
                 {
                     if (tab[i] == 0)
@@ -212,10 +257,7 @@ namespace ASD
                         {
                             break;
                         }
-                        //if (i == n - 1)
-                        //    newGraph.AddEdge(i, i);
-                        //mat[i][j] = 1;
-                        //mat[j][i] = 1;
+
                     }
                 }
             }
@@ -224,8 +266,14 @@ namespace ASD
             {
                 if (tab[i] > 1)
                 {
+
+                    tab[i] -= 2;
                     newGraph.AddEdge(i, i);
                     break;
+                }
+                if (tab[i] > 0)
+                {
+                    return null;
                 }
             }
 
@@ -234,36 +282,9 @@ namespace ASD
 
         //Część 3
         // Wyznaczanie minimalnego drzewa (bądź lasu) rozpinającego algorytmem Kruskala
-        // 2 pkt
+        // 2 pkt 
         public Graph MinimumSpanningTree(Graph graph, out double min_weight)
         {
-
-            //if (graph.Directed)
-            //{
-            //    throw new ArgumentException();
-            //}
-
-            //PriorityQueue<Edge, double> edgeQueue = new PriorityQueue<Edge, double>((e1, e2) => e1.Value < e2.Value);
-            //graph.GeneralSearchAll<EdgesQueue>(null, null, e => edgeQueue.Put(e, e.Weight), out int cc);
-
-            //min_weight = 0;
-            //Graph kruskalTree = graph.IsolatedVerticesGraph();
-
-
-            //UnionFind uf = new UnionFind(graph.VerticesCount);
-            //while (!edgeQueue.Empty)
-            //{
-            //    Edge e = edgeQueue.Get();
-
-            //    if (uf.Union(e.To, e.From))
-            //    {
-            //        min_weight += e.Weight;
-            //        uf.Union(e.From, e.To);
-            //        kruskalTree.AddEdge(e);
-            //    }
-            //}
-
-            //return kruskalTree;
 
             if (graph.Directed)
             {
@@ -273,6 +294,7 @@ namespace ASD
             UnionFind u = new UnionFind(graph.VerticesCount);
             EdgesMinPriorityQueue q = new EdgesMinPriorityQueue();
             Graph kurskalTree = graph.IsolatedVerticesGraph();
+
             for (int i = 0; i < graph.VerticesCount; i++)
             {
                 foreach (var e in graph.OutEdges(i))
@@ -293,7 +315,6 @@ namespace ASD
                     kurskalTree.AddEdge(e);
                     min_weight += e.Weight;
                 }
-
             }
             return kurskalTree;  // zmienić
 

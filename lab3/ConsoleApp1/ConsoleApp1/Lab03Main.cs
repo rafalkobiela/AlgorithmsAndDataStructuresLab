@@ -217,7 +217,12 @@ namespace ASD
             sequences[9] = new int[] { 1, 1, 1, 1, 6 };
             is_graphic[9] = false;
             descriptions1[9] = "{ 1, 1, 1, 1, 6 }";
-
+            //6,1,1,1,1
+            //5,0,1,1,1
+            //4,0,0,1,1
+            //3,0,0,0,1
+            //2,0,0,0,0
+            
             sequences[10] = new int[] { 4, 4, 3, 2, 1 };
             is_graphic[10] = false;
             descriptions1[10] = "{ 4, 4, 3, 2, 1 }";
