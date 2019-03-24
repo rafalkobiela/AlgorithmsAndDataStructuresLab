@@ -33,7 +33,7 @@ namespace ASD
             {
                 for (int j = 0; j < tab.GetLength(1); j++)
                 {
-                    foreach (var z in tab[i,j])
+                    foreach (var z in tab[i, j])
                     {
                         Console.Write(z.ToString() + ", ");
                     }
@@ -59,7 +59,7 @@ namespace ASD
 
         private int WhichTab(int i)
         {
-            if(i % 2 == 0)
+            if (i % 2 == 0)
             {
                 return 0;
             }
@@ -80,15 +80,8 @@ namespace ASD
             int prev = 0;
             var tab = new int[dist.Length, maxCarrots + 1];
 
-            TaxAction[,][] plan = new TaxAction[2, maxCarrots + 1][];
+            TaxAction[] plan = new TaxAction[dist.Length];
 
-            for (int i = 0; i < plan.GetLength(0); i++)
-            {
-                for (int j = 0; j < plan.GetLength(1); j++)
-                {
-                    plan[i, j] = new TaxAction[dist.Length];
-                }
-            }
 
 
 
@@ -97,8 +90,6 @@ namespace ASD
                 tab[0, i] = -1;
             }
 
-            plan[0, startingCarrots][0] = TaxAction.TakeMoney;
-            plan[0, Math.Min(maxCarrots, startingCarrots + carrots[0])][0] = TaxAction.TakeCarrots;
 
 
             tab[0, startingCarrots] = money[0];
@@ -106,104 +97,162 @@ namespace ASD
 
 
 
-            for (int i = 1; i < dist.Length; i++) // miasta
+            for (int miasto = 1; miasto < dist.Length; miasto++) // miasta
             {
 
                 for (int j = 0; j < maxCarrots + 1; j++) // marchewki
                 {
-                    tab[i, j] = -1;
+                    tab[miasto, j] = -1;
                 }
 
-                curr = WhichTab(i);
+                curr = WhichTab(miasto);
                 prev = Math.Abs(curr - 1);
 
-                for (int j = 0; j < maxCarrots + 1; j++) // marchewki
+                for (int marchewka = 0; marchewka < maxCarrots + 1; marchewka++) // marchewki
                 {
 
-                    if (j + dist[i] < maxCarrots + 1) // bierzemy hajs
+                    if (marchewka + dist[miasto] < maxCarrots + 1) // bierzemy hajs
                     {
-                        if (tab[i - 1, j + dist[i]] >= 0)
+                        if (tab[miasto - 1, marchewka + dist[miasto]] >= 0)
                         {
-                            Array.Copy(plan[prev, j + dist[i]], 0, plan[curr, j], 0, i);
-                            tab[i, j] = tab[i - 1, j + dist[i]] + money[i];
-                            plan[curr, j][i] = TaxAction.TakeMoney;
+                            //Array.Copy(plan[prev, j + dist[i]], 0, plan[curr, j], 0, i);
+                            tab[miasto, marchewka] = tab[miasto - 1, marchewka + dist[miasto]] + money[miasto];
+                            //plan[curr, j][i] = TaxAction.TakeMoney;
+                            //plan2[i] = TaxAction.TakeMoney;
 
                         }
                     }
 
 
-                    if ( j + dist[i] - carrots[i] < maxCarrots + 1 && j - carrots[i] >= 0)                   
+                    if (marchewka + dist[miasto] - carrots[miasto] < maxCarrots + 1 && marchewka - carrots[miasto] >= 0)
                     {
-                            if (tab[i - 1, j + dist[i] - carrots[i]] > tab[i, j])
-                            {
-                            Array.Copy(plan[prev, j + dist[i] - carrots[i]], 0, plan[curr, j], 0, i);
-                            plan[curr, j][i] = TaxAction.TakeCarrots;
-                                tab[i, j] = tab[i - 1, j + dist[i] - carrots[i]];
-                            }
+                        if (tab[miasto - 1, marchewka + dist[miasto] - carrots[miasto]] > tab[miasto, marchewka])
+                        {
+                            //Array.Copy(plan[prev, j + dist[i] - carrots[i]], 0, plan[curr, j], 0, i);
+                            //plan[curr, j][i] = TaxAction.TakeCarrots;
+                            tab[miasto, marchewka] = tab[miasto - 1, marchewka + dist[miasto] - carrots[miasto]];
+                            //plan2[i] = TaxAction.TakeCarrots;
+                        }
                     }
 
 
-                    if (j == maxCarrots)
+                    if (marchewka == maxCarrots)
                     {
-                        for (int k = j - carrots[i] + dist[i]; k <= maxCarrots; k++)
+                        for (int k = marchewka - carrots[miasto] + dist[miasto]; k <= maxCarrots; k++)
                         {
-                            if (k >= 0 && dist[i] <= k)
+                            if (k >= 0 && dist[miasto] <= k)
                             {
-                                if (tab[i - 1, k] > tab[i, j])
+                                if (tab[miasto - 1, k] > tab[miasto, marchewka])
                                 {
-                                    Array.Copy(plan[prev, k], 0, plan[curr, j], 0, i);
-                                    plan[curr, j][i] = TaxAction.TakeCarrots;
-                                    tab[i, j] = tab[i - 1, k];
+                                    //Array.Copy(plan[prev, k], 0, plan[curr, j], 0, i);
+                                    //plan[curr, j][i] = TaxAction.TakeCarrots;
+                                    tab[miasto, marchewka] = tab[miasto - 1, k];
+
+                                    //plan2[i] = TaxAction.TakeCarrots;
                                 }
                             }
                         }
                     }
-
-                    if (ifPrint)
-                    {
-                        Console.WriteLine("");
-                        if (tab[i, j] != -1)
-                        {
-                            Console.WriteLine($"Current city: {i}, Current carrots: {j}");
-
-                            PrintAllPlans(plan);
-                            //PrintPlan(plan[curr, j]);
-                            print(tab);
-
-                        }
-
-                    }
                 }
 
             }
-            //if (ifPrint)
-            //{
-            //    print(tab);
 
-            //}
 
             max = -1;
-            int index = -1;
+            int indexMax = -1;
             for (int i = startingCarrots; i < maxCarrots + 1; i++)
             {
                 if (max < tab[dist.Length - 1, i])
                 {
                     max = tab[dist.Length - 1, i];
-                    index = i;
+                    indexMax = i;
                 }
             }
 
 
-            if (index >= 0 && max != -1)
+            if (indexMax >= 0)
             {
-                collectingPlan = plan[curr, index];
-            }
-            //if (ifPrint && max != -1)
-            //{
-            //    PrintPlan(collectingPlan);
-            //    Console.WriteLine($"Final result: {max}");
 
-            //}
+                for (int miasto = dist.Length - 1; miasto > 0; miasto--)
+                {
+                    if (indexMax + dist[miasto] <= maxCarrots)
+                    {
+                        if (tab[miasto - 1, indexMax + dist[miasto]] + money[miasto] == tab[miasto, indexMax] && tab[miasto - 1, indexMax + dist[miasto]] != -1)
+                        {
+                            plan[miasto] = TaxAction.TakeMoney;
+                            indexMax = indexMax + dist[miasto];
+                        }
+                        else
+                        {
+
+                            if (indexMax < maxCarrots)
+                            {
+                                indexMax = indexMax + dist[miasto] - carrots[miasto];
+                                plan[miasto] = TaxAction.TakeCarrots;
+                            }
+                            else
+                            {
+                                for (int k = indexMax - carrots[miasto] + dist[miasto]; k < indexMax + dist[miasto] - 1; k++)
+                                {
+                                    if (k >= 0)
+                                    {
+                                        if (tab[miasto - 1, k] == tab[miasto, indexMax])
+                                        {
+                                            indexMax = k;
+                                            plan[miasto] = TaxAction.TakeCarrots;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (indexMax < maxCarrots)
+                        {
+                            indexMax = indexMax + dist[miasto] - carrots[miasto];
+                            plan[miasto] = TaxAction.TakeCarrots;
+                        }
+                        else
+                        {
+                            for (int k = indexMax + dist[miasto] - 1; k >= indexMax - carrots[miasto] + dist[miasto]; k--)
+                            {
+                                if (k >= 0 && k <= maxCarrots)
+                                {
+                                    if (tab[miasto - 1, k] == tab[miasto, indexMax])
+                                    {
+                                        indexMax = k;
+                                        plan[miasto] = TaxAction.TakeCarrots;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+
+
+                if (tab[0, indexMax] == money[0])
+                {
+                    plan[0] = TaxAction.TakeMoney;
+                }
+                else
+                {
+                    plan[0] = TaxAction.TakeCarrots;
+                }
+                //PrintPlan(collectingPlan);
+            }
+
+            //plan2 = collectingPlan;
+            if (ifPrint)
+            {
+                PrintPlan(plan);
+            }
+            if (max >= 0)
+            {
+                collectingPlan = plan;
+            }
             return max;
         }
 

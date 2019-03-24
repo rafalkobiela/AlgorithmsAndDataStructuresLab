@@ -260,18 +260,18 @@ namespace ASD
             //var startingCarrots = 1;
             //var maxCarrots = 5;
 
-            var money = new int[] { 2, 2, 3 };
-            var carrots = new int[] { 5, 3, 1 };
-            var dist = new int[] { 0, 1, 1 };
-            var startingCarrots = 0;
-            var maxCarrots = 3;
+            //var money = new int[] { 2, 2, 3 };
+            //var carrots = new int[] { 5, 3, 1 };
+            //var dist = new int[] { 0, 1, 1 };
+            //var startingCarrots = 0;
+            //var maxCarrots = 3;
 
-            //var money = new int[] { 100, 100, 100, 100, 100, 100, 100, 100, 0 };
-            //var carrots = new int[] { 10, 10, 10, 10, 10, 10, 10, 10, 4 };
-            //var dist = new int[] { 0, 5, 1, 5, 1, 4, 1, 4, 2 };
-            //var startingCarrots = 4;
-            //var maxCarrots = 5;
-            //var expectedResult = 200;
+            var money = new int[] { 100, 100, 100, 100, 100, 100, 100, 100, 0 };
+            var carrots = new int[] { 10, 10, 10, 10, 10, 10, 10, 10, 4 };
+            var dist = new int[] { 0, 5, 1, 5, 1, 4, 1, 4, 2 };
+            var startingCarrots = 4;
+            var maxCarrots = 5;
+            var expectedResult = 200;
 
             //var money = new int[] { 10, 5, 15, 12, 6, 13, 5, 4, 10 };
             //var carrots = new int[] { 5, 2, 3, 6, 3, 2, 6, 3, 1 };
@@ -298,7 +298,15 @@ namespace ASD
             //var maxCarrots = 100;
             //var expectedResult = 33;
 
-            a.CollectMaxTax(dist, money, carrots, maxCarrots, startingCarrots, out TaxAction[] b);
+            //2
+            //var money = new int[] { 100, 100, 100, 100, 0 };
+            //var carrots = new int[] { 10, 10, 10, 10, 10 };
+            //var dist = new int[] { 0, 1, 1, 1, 37 };
+            //var startingCarrots = 0;
+            //var maxCarrots = 50;
+            //var expectedResult = 0;
+
+            //a.CollectMaxTax(dist, money, carrots, maxCarrots, startingCarrots, out TaxAction[] b);
 
 
 

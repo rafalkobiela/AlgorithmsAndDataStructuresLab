@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="Lab04.cs" />
     <Compile Include="Lab04Main.cs" />
+    <Compile Include="pasza.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
