@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace ASD
 {
@@ -27,6 +26,25 @@ namespace ASD
             Console.WriteLine("End print ----------------------------");
         }
 
+        private void PrintAllPlans(TaxAction[,][] tab)
+        {
+
+            for (int i = 0; i < tab.GetLength(0); i++)
+            {
+                for (int j = 0; j < tab.GetLength(1); j++)
+                {
+                    foreach (var z in tab[i,j])
+                    {
+                        Console.Write(z.ToString() + ", ");
+                    }
+                    Console.WriteLine("");
+                }
+                Console.WriteLine("");
+            }
+
+        }
+
+
 
         private void PrintPlan(TaxAction[] plan)
         {
@@ -39,6 +57,18 @@ namespace ASD
             Console.WriteLine("---------------");
         }
 
+        private int WhichTab(int i)
+        {
+            if(i % 2 == 0)
+            {
+                return 0;
+            }
+            else
+            {
+                return 1;
+            }
+        }
+
         public int CollectMaxTax(int[] dist, int[] money, int[] carrots, int maxCarrots, int startingCarrots, out TaxAction[] collectingPlan)
         {
 
@@ -46,39 +76,46 @@ namespace ASD
 
             collectingPlan = null;
             int max = 0;
-
+            int curr = 0;
+            int prev = 0;
             var tab = new int[dist.Length, maxCarrots + 1];
 
-            List<TaxAction>[,] plan = new List<TaxAction>[dist.Length, maxCarrots + 1];
+            TaxAction[,][] plan = new TaxAction[2, maxCarrots + 1][];
 
+            for (int i = 0; i < plan.GetLength(0); i++)
+            {
+                for (int j = 0; j < plan.GetLength(1); j++)
+                {
+                    plan[i, j] = new TaxAction[dist.Length];
+                }
+            }
 
 
 
             for (int i = 0; i < maxCarrots + 1; i++)
             {
                 tab[0, i] = -1;
-                plan[0, i] = new List<TaxAction>();
             }
 
-            plan[0, startingCarrots].Add(TaxAction.TakeMoney);
-            plan[0, Math.Min(maxCarrots, startingCarrots + carrots[0])].Add(TaxAction.TakeCarrots);
+            plan[0, startingCarrots][0] = TaxAction.TakeMoney;
+            plan[0, Math.Min(maxCarrots, startingCarrots + carrots[0])][0] = TaxAction.TakeCarrots;
+
 
             tab[0, startingCarrots] = money[0];
             tab[0, Math.Min(maxCarrots, startingCarrots + carrots[0])] = 0;
 
 
 
-
             for (int i = 1; i < dist.Length; i++) // miasta
             {
-                bool hajs = false;
-                bool czyscilem_liste = false;
+
                 for (int j = 0; j < maxCarrots + 1; j++) // marchewki
                 {
                     tab[i, j] = -1;
-
-
                 }
+
+                curr = WhichTab(i);
+                prev = Math.Abs(curr - 1);
 
                 for (int j = 0; j < maxCarrots + 1; j++) // marchewki
                 {
@@ -87,56 +124,37 @@ namespace ASD
                     {
                         if (tab[i - 1, j + dist[i]] >= 0)
                         {
-                            plan[i, j] = new List<TaxAction>(plan[i - 1, j + dist[i]]);
-
+                            Array.Copy(plan[prev, j + dist[i]], 0, plan[curr, j], 0, i);
                             tab[i, j] = tab[i - 1, j + dist[i]] + money[i];
-                            plan[i, j].Add(TaxAction.TakeMoney);
-                            hajs = true;
-                        }
+                            plan[curr, j][i] = TaxAction.TakeMoney;
 
+                        }
                     }
 
 
-                    if (j - carrots[i] > -dist[i] && j + dist[i] - carrots[i] < maxCarrots + 1 && j - carrots[i] >= 0) // tu nie wiem czy ostatni warunek ok                     
+                    if ( j + dist[i] - carrots[i] < maxCarrots + 1 && j - carrots[i] >= 0)                   
                     {
-                        if (tab[i - 1, j + dist[i] - carrots[i]] >= 0) // bierzemy marchewki
-                        {
                             if (tab[i - 1, j + dist[i] - carrots[i]] > tab[i, j])
                             {
-
-                                if (tab[i, j] != -1)
-                                {
-                                    plan[i, j] = new List<TaxAction>(plan[i - 1, j + dist[i] - carrots[i]]);
-                                    plan[i, j].Add(TaxAction.TakeCarrots);
-                                }
-                                else
-                                {
-                                    plan[i, j] = new List<TaxAction>(plan[i - 1, j + dist[i] - carrots[i]]);
-                                    plan[i, j].Add(TaxAction.TakeCarrots);
-                                }
+                            Array.Copy(plan[prev, j + dist[i] - carrots[i]], 0, plan[curr, j], 0, i);
+                            plan[curr, j][i] = TaxAction.TakeCarrots;
                                 tab[i, j] = tab[i - 1, j + dist[i] - carrots[i]];
                             }
-
-                        }
                     }
 
 
                     if (j == maxCarrots)
                     {
-
                         for (int k = j - carrots[i] + dist[i]; k <= maxCarrots; k++)
                         {
                             if (k >= 0 && dist[i] <= k)
                             {
-
                                 if (tab[i - 1, k] > tab[i, j])
                                 {
-
-                                    plan[i, j] = new List<TaxAction>(plan[i - 1, k]);
-                                    plan[i, j].Add(TaxAction.TakeCarrots);
+                                    Array.Copy(plan[prev, k], 0, plan[curr, j], 0, i);
+                                    plan[curr, j][i] = TaxAction.TakeCarrots;
                                     tab[i, j] = tab[i - 1, k];
                                 }
-
                             }
                         }
                     }
@@ -146,9 +164,10 @@ namespace ASD
                         Console.WriteLine("");
                         if (tab[i, j] != -1)
                         {
-                            Console.WriteLine($"Current city: {i}, Current carrots: {j}, Czy wzialem hajs: {hajs}, czyscilem list: {czyscilem_liste}");
-                            hajs = false;
-                            PrintPlan(plan[i, j].ToArray());
+                            Console.WriteLine($"Current city: {i}, Current carrots: {j}");
+
+                            PrintAllPlans(plan);
+                            //PrintPlan(plan[curr, j]);
                             print(tab);
 
                         }
@@ -157,11 +176,11 @@ namespace ASD
                 }
 
             }
-            if (ifPrint)
-            {
-                print(tab);
+            //if (ifPrint)
+            //{
+            //    print(tab);
 
-            }
+            //}
 
             max = -1;
             int index = -1;
@@ -177,14 +196,14 @@ namespace ASD
 
             if (index >= 0 && max != -1)
             {
-                collectingPlan = plan[plan.GetLength(0) - 1, index].ToArray();
+                collectingPlan = plan[curr, index];
             }
-            if (ifPrint && max != -1)
-            {
-                PrintPlan(collectingPlan);
-                Console.WriteLine($"Final result: {max}");
+            //if (ifPrint && max != -1)
+            //{
+            //    PrintPlan(collectingPlan);
+            //    Console.WriteLine($"Final result: {max}");
 
-            }
+            //}
             return max;
         }
 
