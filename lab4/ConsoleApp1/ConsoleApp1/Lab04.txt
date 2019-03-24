@@ -70,3 +70,4 @@ to 1. Pobieramy 3 worki pieniêdzy (TC) i koñczymy podró¿ z piêcioma workami.
 Punktacja:
 3 pkt - znalezienie optymalnej iloœci pieniêdzy
 1 pkt - znalezienie optymalnego planu
+ 

@@ -24,77 +24,17 @@ namespace ASD
         //  Sprawdzenie czy podany ciąg stopni jest grafowy
         //  0.5 pkt
 
-        public bool IsGreaterThanZero(int[] tab)
-        {
-
-            for (int i = 0; i < tab.Length; i++)
-            {
-                if (tab[i] > 0)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public void InsertionSort(ref int[] tab, int start = 0)
-        {
-            for (int i = start; i < tab.Length - 1; i++)
-            {
-                for (int j = i + 1; j > start; j--)
-                {
-                    if (tab[j - 1] < tab[j])
-                    {
-                        int temp = tab[j - 1];
-                        tab[j - 1] = tab[j];
-                        tab[j] = temp;
-                    }
-                }
-            }
-        }
-
-        public int FindFirstNonZero(int[] tab)
-        {
-
-            for (int i = 0; i < tab.Length; i++)
-            {
-                if (tab[i] > 0)
-                {
-                    return i;
-                }
-            }
-
-            return -1;
-        }
-
-        public void PrintArr(int[] a)
-        {
-            for (int i = 0; i < a.Length; i++)
-            {
-                Console.Write(a[i].ToString() + ", ");
-            }
-            Console.WriteLine();
-            Console.WriteLine("------------------");
-        }
-
-        public int[] SortAsIWant(int[] tab)
-        {
-            return tab;
-        }
-
 
         public bool IsGraphic(int[] sequence)
         {
             var tab = (int[])sequence.Clone();
 
             IComparer revComparer = new ReverseComparer();
-            Array.Sort(tab, 0 , tab.Length, revComparer);
-            //Array.Reverse(tab);
-            //PrintArr(tab);
+            Array.Sort(tab, 0, tab.Length, revComparer);
             int degSum = 0;
             for (int i = 0; i < tab.Length; i++)
             {
-                if (tab[i] < 0 )
+                if (tab[i] < 0)
                 {
                     return false;
                 }
@@ -106,102 +46,57 @@ namespace ASD
                 return false;
             }
 
+            int n = tab.Length;
+            for (int i = 0; i < n; i++)
+            {
+                int tmp = tab[i];
+                for (int j = i + 1; j < n; j++)
+                {
+                    if (tab[i] == 0)
+                    {
+                        break;
+                    }
 
-            //Pierwsze rozw
+                    if (tab[i] > 0 && tab[j] > 0)
+                    {
+                        tab[i]--;
+                        tab[j]--;
+                        if (tab[i] == 0)
+                        {
+                            break;
+                        }
+                    }
+                }
+                if (i == tab.Length - 1 && tab.Length > 1)
+                {
+                    if (tab[i] == 1 && tab[i - 1] == 1)
+                    {
+                        tab[i] = 0;
+                        tab[i - 1] = 0;
 
-                //int start = 0;
-                //while (tab[start] > 0)
-                //{
+                    }
+                }
+            }
 
-                //    int tmp = tab[start];
-                //    tab[start] = 0;
+            for (int i = 0; i < tab.Length; i++)
+            {
 
-                //    for (int i = start + 1; i <= tmp + start; i++)
-                //    {
-                //        if (i == tab.Length || --tab[i] < 0)
-                //        {
-                //            return false;
-                //        }
-                //    }
+                if (tab[i] >= 2 && i != 0)
+                {
+                    tab[i] -= 2;
+                    i--;
+                }
+            }
 
-                //    int nextZero = 0;
-                //    for (int i = 1; i < tab.Length - start; i++)
-                //    {
-                //        if (start + i + 1 < tab.Length)
-                //        {
-                //            if (tab[start + i] == 0)
-                //            {
-                //                nextZero++;
-                //            }
-                //            else
-                //            {
-                //                break;
-                //            }
+            for (int i = 0; i < tab.Length; i++)
+            {
+                if (tab[i] != 0)
+                {
+                    return false;
+                }
+            }
 
-                //        }
-                //    }
-                //    start += nextZero + 1;
-                //    Array.Sort(tab, start, Math.Min(tmp + start, tab.Length - start), revComparer);
-                //    //PrintArr(tab);
-                //}
-
-                //return true;
-
-
-                //Drugie rozw
-
-                //int n = tab.Length;
-                //for (int i = 0; i < n; i++)
-                //{
-
-                //    int tmp = tab[i];
-                //    for (int j = i + 1; j < n; j++)
-                //    {
-                //        if (tab[i] == 0)
-                //        {
-                //            break;
-                //        }
-
-                //        if (tab[i] > 0 && tab[j] > 0)
-                //        {
-
-                //            //PrintArr(tab);
-                //            tab[i]--;
-                //            tab[j]--;
-                //            if (tab[i] == 0)
-                //            {
-                //                break;
-                //            }
-
-                //        }
-                //    }
-                //}
-
-
-                //for (int i = 0; i < tab.Length; i++)
-                //{
-                //    if (i != 0)
-                //    {
-                //        if (tab[i]%2 == 0 && tab[i] > 0)
-                //        {
-                //            tab[i] -= 2;
-                //            i--;
-                //            //newGraph.AddEdge(i, i);
-                //            //break;
-                //        }
-                //    }
-                //}
-
-                ////PrintArr(tab);
-                //for(int i = 0; i< tab.Length; i++)
-                //{
-                //    if (tab[i] > 0)
-                //    {
-                //        return false;
-                //    }
-                //}
-
-                //return true;
+            return true;
         }
 
         //Część 2
@@ -233,8 +128,7 @@ namespace ASD
             Array.Sort(tab);
             Array.Reverse(tab);
             int n = tab.Length;
-
-
+           
 
             for (int i = 0; i < n; i++)
             {
@@ -248,8 +142,6 @@ namespace ASD
 
                     if (tab[i] > 0 && tab[j] > 0)
                     {
-
-                        //PrintArr(tab);
                         tab[i]--;
                         tab[j]--;
                         newGraph.AddEdge(i, j);
@@ -266,7 +158,6 @@ namespace ASD
             {
                 if (tab[i] > 1)
                 {
-
                     tab[i] -= 2;
                     newGraph.AddEdge(i, i);
                     break;
@@ -309,15 +200,18 @@ namespace ASD
             while (!q.Empty)
             {
                 Edge e = q.Get();
-                if (/*u.Find(e.From) != u.Find(e.To) */ u.Union(e.From, e.To))
+                if (u.Union(e.From, e.To))
                 {
-                    //u.Union(e.From, e.To);
+                    
                     kurskalTree.AddEdge(e);
                     min_weight += e.Weight;
                 }
             }
             return kurskalTree;  // zmienić
 
+   
+
         }
+
     }
 }
