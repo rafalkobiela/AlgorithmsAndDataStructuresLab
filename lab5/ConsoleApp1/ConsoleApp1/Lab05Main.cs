@@ -209,10 +209,11 @@ namespace ASD
 
             //1
             desc = "skierowany cykl";
-            g = new AdjacencyMatrixGraph(true, 3);
+            g = new AdjacencyMatrixGraph(true, 4);
             g.AddEdge(0, 1);
+            g.AddEdge(1, 3);
+            g.AddEdge(3, 0);
             g.AddEdge(1, 2);
-            g.AddEdge(2, 0);
             expectNull = false;
             cycleTests.Add((g, expectNull, desc));
 
@@ -270,7 +271,7 @@ namespace ASD
 
             foreach (var (gr, ce, des) in cycleTests)
             {
-                TestSets["CycleTests"].TestCases.Add(new FindCycleTestCase(1, null, des, gr, ce));                
+                TestSets["CycleTests"].TestCases.Add(new FindCycleTestCase(1, null, des, gr, ce));
             }
 
         }
@@ -316,9 +317,10 @@ namespace ASD
             g.AddEdge(1, 2);
             g.AddEdge(2, 0);
             g.AddEdge(1, 3);
-            expectNull = true;
+            expectNull = false;
             optNum = 0;
             labTests.Add((g, expectNull, optNum, desc));
+
 
             //4
             desc = "ósemka";
@@ -481,10 +483,108 @@ namespace ASD
 
         public static void Main()
         {
+
+            //1
+            //var g = new AdjacencyMatrixGraph(true, 4);
+            //g.AddEdge(0, 1);
+            //g.AddEdge(1, 3);
+            //g.AddEdge(3, 0);
+            //g.AddEdge(1, 2);
+
+            //4
+            //var g = new AdjacencyMatrixGraph(true, 5);
+            //g.AddEdge(0, 1);
+            //g.AddEdge(1, 2);
+            //g.AddEdge(2, 0);
+            //g.AddEdge(1, 3);
+            //g.AddEdge(3, 4);
+            //g.AddEdge(4, 1);
+
+            //2
+            //var g = new AdjacencyMatrixGraph(true, 4);
+            //g.AddEdge(0, 1);
+            //g.AddEdge(1, 2);
+            //g.AddEdge(2, 3);
+            //g.AddEdge(0, 2);
+            //g.AddEdge(0, 3);
+            //g.AddEdge(1, 3);
+
+            //5
+            //var g = new AdjacencyListsGraph<HashTableAdjacencyList>(true, 4);
+            //g.AddEdge(0, 1);
+            //g.AddEdge(1, 2);
+            //g.AddEdge(2, 3);
+            //g.AddEdge(0, 2);
+            //g.AddEdge(0, 3);
+            //g.AddEdge(1, 3);
+            //g.AddEdge(3, 1);
+
+            //wisząca krawedź
+            //var g = new AdjacencyMatrixGraph(true, 6);
+            //g.AddEdge(0, 1);
+            //g.AddEdge(1, 2);
+            //g.AddEdge(2, 4);
+            //g.AddEdge(4, 0);
+            //g.AddEdge(2, 3);
+            //g.AddEdge(3, 5);
+
+
+            //
+            var g = new AdjacencyListsGraph<HashTableAdjacencyList>(true, 7);
+            g.AddEdge(0, 2);
+            g.AddEdge(2, 3);
+            g.AddEdge(3, 5);
+            g.AddEdge(5, 6);
+            g.AddEdge(6, 1);
+            g.AddEdge(1, 2);
+            g.AddEdge(1, 3);
+            g.AddEdge(3, 4);
+            g.AddEdge(4, 1);
+            g.AddEdge(2, 6);
+            g.AddEdge(6, 0);
+            g.AddEdge(6, 2);
+
+            //var a = new RoutePlanner();
+
+            //var cycle = a.FindShortRoutes(g);
+
+
+            //for (int i = 0; i<cycle.GetLength(0); i++ )
+            //{
+            //    RoutePlanner.print(cycle[i]);
+            //}
+            //Console.WriteLine("");
+
+            //foreach (int i in cycle)
+            //{
+            //    Console.Write($"{i}, ");
+            //}
+            //Console.WriteLine("");
+
+
+            //int[] a = null;
+            //if(a == null)
+            //{
+            //    Console.WriteLine("jest null");
+            //}
+
             Lab05TestModule tests = new Lab05TestModule();
             tests.PrepareTestSets();
             foreach (var ts in tests.TestSets)
                 ts.Value.PerformTests(false);
+
+
+
+            //var z = new Stack<int>();
+
+            //z.Push(1);
+            //z.Push(2);
+            //z.Push(3);
+            //z.Push(4);
+            //z.Push(5);
+            //Console.WriteLine($"First {z.First()}, last: {z.Last()}");
+            //z.Pop();
+            //Console.WriteLine($"First {z.First()}, last: {z.Last()}");
         }
     }
 }

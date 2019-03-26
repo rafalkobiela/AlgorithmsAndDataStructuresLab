@@ -7,7 +7,48 @@ namespace ASD
 {
     public class RoutePlanner : MarshalByRefObject
     {
+        public static void print(int[] tab)
+        {
+            foreach(var i in tab)
+            {
+                Console.Write($"{i}, ");
+            }
+            Console.WriteLine();
+        }
 
+        private int[] subsetArray(int[] tab, int fromElem)
+        {
+            int findIndex = -1;
+            for(int i =0; i<tab.Length; i++)
+            {
+                if(tab[i] == fromElem)
+                {
+                    findIndex = i;
+                }
+            }
+
+            var tmp = new int[tab.Length - findIndex];
+
+            for (int i = 0; i < tab.Length - findIndex; i++)
+            {
+                try
+                {
+                    tmp[i] = tab[i + findIndex];
+                }
+                catch
+                {
+                    Console.WriteLine("Actual tab;");
+                    print(tmp);
+                    Console.WriteLine($"Current i {i}, indexTab {findIndex}");
+                    
+
+                    tmp[i] = tab[i + findIndex];
+
+                }
+            }
+            return tmp;
+            
+        }
         // mozna dodawac metody pomocnicze
 
         /// <summary>
@@ -21,67 +62,61 @@ namespace ASD
             Graph g_cloned = g.Clone();
 
             var cycle = new List<int>();
+            var cycle_set = new HashSet<int>();
+            var cycle_stack = new Stack<int>();
+            var cycle_queue = new Queue<int>();
 
             bool all = true;
             bool found_cycle = false;
-            for (int i = 0; i < g.VerticesCount; i++)
-            {
+            int[] cycle_tab;
+            int last = -1;
 
-                cycle.Add(i);
-                
-                 all = g_cloned.GeneralSearchFrom<EdgesStack>(i,
-
-                    v =>
+            g_cloned.GeneralSearchAll<EdgesStack>(null, null,
+                e =>
+                {
+                    //print(cycle_stack.ToArray());
+                    int v_from = e.From;
+                    int v_to = e.To;
+                    if (cycle_stack.Count() == 0)
                     {
-                        //Console.WriteLine(v);
-                        foreach (Edge j in g_cloned.OutEdges(v))
+                        cycle_stack.Push(v_from);
+                    }
+                    
+
+                    if (cycle_stack.Contains(v_to)) // to zmienić na tablice
+                    {
+                        //while (cycle_stack.Count > 0 && cycle_stack.First() != v_from)
+                        //{
+                        //    cycle_stack.Pop();
+                        //}
+                        found_cycle = true;
+                        last = v_to;
+                        return false;
+                    }
+                    else
+                    {
+                        while(cycle_stack.Count>0 && cycle_stack.First() != v_from)
                         {
-                            if (j.To == i)
-                            {
-                                //cycle.Add(j.To);
-                                found_cycle = true;
-                                return false;
-                            }
+                            cycle_stack.Pop();
                         }
-
-                        return true;
+                        if(cycle_stack.Count == 0)
+                        {
+                            cycle_stack.Push(v_from);
+                        }
+                        cycle_stack.Push(v_to);
                     }
-                    ,
-                     null
-                    ,
-                    e =>
-                    {
 
-                        cycle.Add(e.To);
-                        return true;
-                    }
-                    );
-                if (found_cycle)
-                {
-                    break;
+                    return true;
                 }
-                else
-                {
-                    cycle.Clear();
-                }
+                , out int cc);
 
-            }
-
-            
             if (found_cycle)
             {
-                //Console.WriteLine("");
-                //Console.WriteLine(" Current cycle: ");
-                //foreach (var z in cycle)
-                //{
-                //    Console.Write(z + ", ");
-                //}
-                //Console.WriteLine("");
-
-                return cycle.ToArray();
+                var tmp = cycle_stack.ToArray();
+                tmp.Reverse();
+                Array.Reverse(tmp);
+                return subsetArray(tmp, last);
             }
-
-
             return null;
         }
 
@@ -94,112 +129,53 @@ namespace ASD
         {
 
 
+            var g_cloned = g.Clone();
+            int[] tmp_cycle;
+            var cycles_list = new List<int[]>();
 
-            var list_of_cycles = new List < int[] > ();
 
-
-            Graph g_cloned = g.Clone();
-
-            var cycle = new List<int>();
-            //Console.WriteLine("Current number of edges: " + g_cloned.EdgesCount.ToString());
-            bool all = true;
-            bool found_cycle = false;
-            for (int i = 0; i < g.VerticesCount; i++)
+            do
             {
 
-                cycle.Add(i);
+                tmp_cycle = FindCycle(g_cloned);
+                //Console.WriteLine($"CUrrent edges {g_cloned.EdgesCount}");
 
-                all = g_cloned.GeneralSearchFrom<EdgesStack>(i,
-
-                   v =>
-                   {
-                       //Console.WriteLine(v);
-                       foreach (Edge j in g_cloned.OutEdges(v))
-                       {
-                           if (j.To == i)
-                           {
-                               
-                                //cycle.Add(j.To);
-                                found_cycle = true;
-                                return false;
-
-                           }
-                       }
-
-                       return true;
-                   }
-                   ,
-                    null
-                   ,
-                   e =>
-                   {
-
-                       int current_enter = -1;
-                       bool found = false;
-                       for(int j = 0; j<cycle.Count; j++)
-                       {
-                           if(e.From == cycle[j])
-                           {
-                               current_enter = j;
-                               found = true;
-                           } 
-                       }
-
-                       if (found)
-                       {
-
-                           cycle.RemoveRange(current_enter, cycle.Count - current_enter - 1);
-                           //for(int j = cycle.Count - 1; j >= current_enter; j++)
-                           //{    
-                           //    cycle.RemoveAt(j);
-                           //}
-
-                       }
-
-                       cycle.Add(e.To);
-                       return true;
-
-                   }
-                   );
-
-                if (found_cycle)
+                if (tmp_cycle != null)
                 {
+                    //List<int> tmp_list = tmp_cycle.ToList();
 
-                    list_of_cycles.Add(cycle.ToArray());
-                    cycle.Add(i);
+                    //print(tmp_list.ToArray());
 
-                    //Console.WriteLine(" Current cycle: ");
-                    //for (int z = 0; z < cycle.Count; z++)
-                    //{
-                    //    Console.Write(cycle[z].ToString() + ", ");
-                    //}
+                    //tmp_list.Append(tmp_cycle[0]);
 
-                    //Console.WriteLine("");
+                    //print(tmp_list.ToArray());
 
-                    for (int k = 0; k<cycle.Count - 1; k++)
+                    for (int i = 0; i < tmp_cycle.Length; i++)
                     {
-                        g_cloned.DelEdge(cycle[k], cycle[k + 1]);
+                        //Console.WriteLine(i);
+                        try
+                        {
+                            g_cloned.DelEdge(tmp_cycle[i], tmp_cycle[i + 1]);
+                        }
+                        catch
+                        {
+                            g_cloned.DelEdge(tmp_cycle[i], tmp_cycle[0]);
+                        }
                     }
-
-                    cycle.Clear();
-
-                    //Console.WriteLine("Current number of edges: " + g_cloned.EdgesCount.ToString() + " Current v: " + i.ToString());
-                    if(g_cloned.EdgesCount == 0)
-                    {
-                        break;
-                    }
+                    
+                    //RoutePlanner.print(tmp_cycle);
+                    //Console.WriteLine($"CUrrent edges {g_cloned.EdgesCount}, Current number of lists {cycles_list.Count()}");
+                    cycles_list.Add(tmp_cycle);
 
                 }
-                else
-                {
-                    cycle.Clear();
-                }
 
-            }
-            
-            if(g_cloned.EdgesCount == 0)
+            }while(tmp_cycle != null && g_cloned.EdgesCount >= 1);
+
+            //Console.WriteLine($"CUrrent edges {g_cloned.EdgesCount}, Current number of lists {cycles_list.Count()}");
+
+            if (cycles_list.Count > 0 && g_cloned.EdgesCount == 0)
             {
-                return list_of_cycles.ToArray();
+                return cycles_list.ToArray();
             }
 
             return null;
