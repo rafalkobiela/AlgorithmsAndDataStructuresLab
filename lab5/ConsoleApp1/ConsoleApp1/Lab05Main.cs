@@ -501,13 +501,20 @@ namespace ASD
             //g.AddEdge(4, 1);
 
             //2
-            //var g = new AdjacencyMatrixGraph(true, 4);
-            //g.AddEdge(0, 1);
-            //g.AddEdge(1, 2);
-            //g.AddEdge(2, 3);
-            //g.AddEdge(0, 2);
-            //g.AddEdge(0, 3);
-            //g.AddEdge(1, 3);
+            var g = new AdjacencyMatrixGraph(true, 4);
+            g.AddEdge(0, 1);
+            g.AddEdge(1, 2);
+            g.AddEdge(2, 3);
+            g.AddEdge(0, 3);
+
+
+            g.GeneralSearchAll<EdgesStack>(null, null,
+                e =>
+                {
+                    Console.WriteLine($"({e.From}, {e.To})");
+                    return true;
+                }, out int cc);
+
 
             //5
             //var g = new AdjacencyListsGraph<HashTableAdjacencyList>(true, 4);
@@ -530,26 +537,27 @@ namespace ASD
 
 
             //
-            var g = new AdjacencyListsGraph<HashTableAdjacencyList>(true, 7);
-            g.AddEdge(0, 2);
-            g.AddEdge(2, 3);
-            g.AddEdge(3, 5);
-            g.AddEdge(5, 6);
-            g.AddEdge(6, 1);
-            g.AddEdge(1, 2);
-            g.AddEdge(1, 3);
-            g.AddEdge(3, 4);
-            g.AddEdge(4, 1);
-            g.AddEdge(2, 6);
-            g.AddEdge(6, 0);
-            g.AddEdge(6, 2);
+            //var g = new AdjacencyListsGraph<HashTableAdjacencyList>(true, 7);
+            //g.AddEdge(0, 2);
+            //g.AddEdge(2, 3);
+            //g.AddEdge(3, 5);
+            //g.AddEdge(5, 6);
+            //g.AddEdge(6, 1);
+            //g.AddEdge(1, 2);
+            //g.AddEdge(1, 3);
+            //g.AddEdge(3, 4);
+            //g.AddEdge(4, 1);
+            //g.AddEdge(2, 6);
+            //g.AddEdge(6, 0);
+            //g.AddEdge(6, 2);
 
-            //var a = new RoutePlanner();
+            var a = new RoutePlanner();
 
-            //var cycle = a.FindShortRoutes(g);
+            //int[] cycle = a.FindCycle(g);
 
+            //RoutePlanner.print(cycle);
 
-            //for (int i = 0; i<cycle.GetLength(0); i++ )
+            //for (int i = 0; i < cycle.GetLength(0); i++)
             //{
             //    RoutePlanner.print(cycle[i]);
             //}
@@ -567,6 +575,50 @@ namespace ASD
             //{
             //    Console.WriteLine("jest null");
             //}
+
+
+            //var d = new int[] { 1,2,4,6,5,3 };
+
+            //var b = new int[] { 7,2,8,6,9 };
+
+
+            var d = new int[] { 3,5,6,1,3,4,1,2,};
+
+            var b = new int[] { 0,2,6 };
+
+            //var merged = a.MergeCycles(d, b);
+
+
+
+            //foreach (var i in merged)
+            //{
+            //    Console.Write($"{i}, ");
+            //}
+            //Console.WriteLine();
+
+            //var c = d.Intersect(b);
+
+            //foreach(var i in c)
+            //{
+            //    Console.Write($"{i}, ");
+            //}
+            //Console.WriteLine();
+
+
+            //for(int i = 0; i<5; i++)
+            //{
+            //    for (int j = 0; j < 5; j++)
+            //    {
+            //        if(i == 4)
+            //        {
+            //            continue;
+            //        }
+
+            //        Console.WriteLine($"Current i: {i}, j: {j}");
+
+            //    }
+            //}
+
 
             Lab05TestModule tests = new Lab05TestModule();
             tests.PrepareTestSets();
