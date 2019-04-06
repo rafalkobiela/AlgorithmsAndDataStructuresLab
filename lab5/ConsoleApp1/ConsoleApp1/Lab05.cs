@@ -22,21 +22,6 @@ namespace ASD
 
             findIndex = Array.FindIndex(tab, s => { return fromElem == s; } );
 
-
-            //for(int i =0; i<tab.Length; i++)
-            //{
-            //    if(tab[i] == fromElem)
-            //    {
-            //        findIndex = i;
-            //    }
-            //}
-
-            //var tmp = new int[tab.Length - findIndex];
-
-            //for (int i = 0; i < tab.Length - findIndex; i++)
-            //{
-            //        tmp[i] = tab[i + findIndex];
-            //}
             return tab.Skip(findIndex).ToArray();
         }
         // mozna dodawac metody pomocnicze
@@ -46,101 +31,50 @@ namespace ASD
         /// </summary>
         /// <param name="g">Graf wejściowy</param>
         /// <returns>Kolejne wierzchołki z cyklu lub null, jeśli cyklu nie ma.</returns>
+        /// 
         public int[] FindCycle(Graph g)
         {
 
             Graph g_cloned = g;
             var cycle_stack = new Stack<int>();
 
-            //if (g_cloned.TopologicalSort(out int[] z, out int[] z1))
-            //{
-            //    return null;
-            //}
-            //Graph g2 = g.Clone();
 
-            //g2.FindNegativeCostCycle();
-
-
-            bool all = true;
             bool found_cycle = false;
-            int[] cycle_tab;
+
             int last = -1;
 
             var vertexInCycle = new bool[g.VerticesCount];
 
-            //g_cloned.DFSearchAll(v_from =>
-            //{
-            //    vertexInCycle[v_from] = true;
-            //    cycle_stack.Push(v_from);
+  
 
-            //    //foreach(var e in g_cloned.OutEdges(v_from))
-            //    //{
-            //    //    //    int v_to = e.To;
+            g_cloned.GeneralSearchAll<EdgesStack>(
+                 v =>
+                 {
 
-            //    //    //    if (vertexInCycle[v_to]) // to zmienić na tablice
-            //    //    //    {
-            //    //    //        found_cycle = true;
-            //    //    //        last = v_to;
-            //    //    //        return false;
-            //    //    //    }
-            //    //    //    else
-            //    //    //    {
+                     cycle_stack.Push(v);
+                     vertexInCycle[v] = true;
 
-            //    //    //        while (cycle_stack.Count > 0 && cycle_stack.First() != v_from)
-            //    //    //        {
-            //    //    //            int tmp = cycle_stack.Pop();
-            //    //    //            vertexInCycle[tmp] = false;
-            //    //    //        }
-            //    //    //        if (cycle_stack.Count == 0)
-            //    //    //        {
-            //    //    //            vertexInCycle[v_from] = true;
-            //    //    //            cycle_stack.Push(v_from);
-            //    //    //        }
-            //    //    //        vertexInCycle[v_from] = true;
-            //    //    //        cycle_stack.Push(v_from);
+                     return true;
+                 }
+                , 
+                 v =>
+                 {
 
-
-            //    //    //    }
-            //    //}
-
-            //    Console.WriteLine($"Current v: {v_from}");
-
-            //    return true;
-            //}, null, out int ccc);
-
-            g_cloned.GeneralSearchAll<EdgesStack>(null, null,
+                     var popped = cycle_stack.Pop();
+                     vertexInCycle[popped] = false;
+  
+                     return true;
+                 }
+                ,
                 e =>
                 {
-                    //print(cycle_stack.ToArray());
-                    int v_from = e.From;
-                    int v_to = e.To;
-                    if (cycle_stack.Count == 0)
+                    if (vertexInCycle[e.To])
                     {
-                        vertexInCycle[v_from] = true;
-                        cycle_stack.Push(v_from);
-                    }
-                    
-                    if (vertexInCycle[v_to]) // to zmienić na tablice
-                    {
+                        last = e.To;
                         found_cycle = true;
-                        last = v_to;
                         return false;
                     }
-                    else
-                    {
-                        while(cycle_stack.Count>0 && cycle_stack.First() != v_from)
-                        {
-                            int tmp = cycle_stack.Pop();
-                            vertexInCycle[tmp] = false;
-                        }
-                        if(cycle_stack.Count == 0)
-                        {
-                            vertexInCycle[v_from] = true;
-                            cycle_stack.Push(v_from);
-                        }
-                        vertexInCycle[v_to] = true;
-                        cycle_stack.Push(v_to);
-                    }
+
 
                     return true;
                 }
@@ -151,35 +85,10 @@ namespace ASD
             int[] tmp2 = null;
             if (found_cycle)
             {
-                //var edges = new HashSet<int[]>();
-                //all = g.GeneralSearchAll<EdgesStack>(null, null, e => { edges.Add(new int[]{e.From, e.To }); return true; }, out int ccc);
 
                 tmp2 = cycle_stack.ToArray();
                 Array.Reverse(tmp2);
                 tmp2 = subsetArray(tmp2, last);
-
-                for (int i = 0; i < tmp2.Length; i++)
-                {
-                    //if (!edges.Contains(new int[] { tmp2[i], tmp2[i + 1] }))
-                    //{
-                    //    return null;
-                    //}
-                    if (i < tmp2.Length - 1)
-                    {
-                        if (g.GetEdgeWeight(tmp2[i], tmp2[i + 1]).IsNaN())
-                        {
-                            return null;
-                        }
-                    }
-                    else
-                    {
-                        //Console.WriteLine($"({tmp2[i]}, {tmp2[0]})");
-                        if (g_cloned.GetEdgeWeight(tmp2[i], tmp2[0]).IsNaN())
-                        {
-                            return null;
-                        }
-                    }
-                }
             }
 
             if (found_cycle && cycle_stack.Count > 1)
@@ -200,7 +109,6 @@ namespace ASD
 
             var g_cloned = g.Clone();
             int[] tmp_cycle;
-            //var cycles_list = new List<int[]>();
             var cycles_list = new int[ Math.Max( g_cloned.EdgesCount, g_cloned.VerticesCount) + 1 ][];
             int idx = 0;
 
@@ -268,7 +176,7 @@ namespace ASD
                     new_cycle[i] = c2[currentC2];
                     currentC2 = (currentC2 + 1) % c2.Length;
                 }
-                //Console.WriteLine(i);
+    
             }
 
 
@@ -298,14 +206,13 @@ namespace ASD
             }
 
 
-            //Console.WriteLine(short_cycles.GetLength(0));
+  
 
             for(int i = 0; i < short_cycles.Length; i++)
             {
                 for (int j = 0; j < short_cycles.Length; j++)
                 {
 
-                    //Console.WriteLine($"Current i: {i}, j: {j}, get {short_cycles.GetLength(0)}");
 
                     if ( i == j || short_cycles[j] == null || short_cycles[i] == null)
                     {
@@ -321,22 +228,9 @@ namespace ASD
                 }
             }
 
-            if (short_cycles != null)
-            {
-                //Console.WriteLine("Solution");
-                //foreach (var i in short_cycles)
-                //{
-                //    if(i != null)
-                //    {
-                //        print(i);
-                //    }
-                //}
 
-                //return cyclesList.ToArray();
 
-            }
-
-            //var finish = new List<int[]>();
+ 
             var finish = new int[numberOfFinalCycles][];
 
             int idx = 0;

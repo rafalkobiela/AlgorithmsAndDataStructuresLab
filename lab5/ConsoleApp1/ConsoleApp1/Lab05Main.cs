@@ -502,19 +502,56 @@ namespace ASD
 
             //2
             var g = new AdjacencyMatrixGraph(true, 4);
+            //g.AddEdge(0, 1);
+            //g.AddEdge(1, 4);
+            //g.AddEdge(4, 5);
+            //g.AddEdge(5, 6);
+            //g.AddEdge(5, 7);
+            //g.AddEdge(1, 2);
+            //g.AddEdge(2, 3);
+            //g.AddEdge(3, 1);
+
             g.AddEdge(0, 1);
             g.AddEdge(1, 2);
             g.AddEdge(2, 3);
+            g.AddEdge(0, 2);
             g.AddEdge(0, 3);
+            g.AddEdge(1, 3);
+            g.AddEdge(3, 1);
 
+            var st = new Stack<int>();
 
-            g.GeneralSearchAll<EdgesStack>(null, null,
+            g.GeneralSearchAll<EdgesStack>(
+                v => {
+
+                    
+                    st.Push(v);
+                    
+                    Console.WriteLine($"Pre: {v}, Stack Size: {st.Count}");
+                    return true;
+                },
+                 v =>
+                 {
+
+                     var tmpp = st.Pop();
+                     
+                     Console.WriteLine($"Post: {v}, Stack Size: {st.Count}, Popped: {tmpp}");
+                     return true;
+                 }
+                ,
                 e =>
                 {
                     Console.WriteLine($"({e.From}, {e.To})");
+                    
+                    if (st.Contains(e.To))
+                    {
+                        return false;
+                    }
+                    
                     return true;
                 }, out int cc);
 
+            RoutePlanner.print(st.ToArray());
 
             //5
             //var g = new AdjacencyListsGraph<HashTableAdjacencyList>(true, 4);
