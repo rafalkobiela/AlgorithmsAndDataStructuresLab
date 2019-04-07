@@ -450,7 +450,7 @@ class BestPairTests : TestModule
                 var distances = new double[] {2,2,2,2,2,2};
                 var nominated = new int[] {0,1};
                 var bestTime = 11;
-                bestPairWithBypass.TestCases.Add(new BestPairWithBypassTestCase(cycle, distances, nominated, bestTime, false, 1*TIME_MULTIPLIER, desc));
+                bestPairWithBypass.TestCases.Add(new BestPairWithBypassTestCase(cycle, distances, nominated, bestTime,  false, 1*TIME_MULTIPLIER, desc));
                 }
 
             }
