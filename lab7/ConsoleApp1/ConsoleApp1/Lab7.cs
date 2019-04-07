@@ -1,13 +1,24 @@
-using System;
-using System.Linq;
 using ASD.Graphs;
+using System;
 
 namespace Lab7
 {
-public class BestCitiesSolver : MarshalByRefObject
+    public class BestCitiesSolver : MarshalByRefObject
     {
 
-    public (int c1, int c2, int? bypass, double time, Edge[] path)? FindBestCitiesPair(Graph times, double[] passThroughCityTimes, int[] nominatedCities, bool buildBypass)
+
+
+        public void print(PathsInfo[] a)
+        {
+
+            foreach (var i in a)
+            {
+                Console.WriteLine(i.Last);
+            }
+
+        }
+
+        public (int c1, int c2, int? bypass, double time, Edge[] path)? FindBestCitiesPair(Graph times, double[] passThroughCityTimes, int[] nominatedCities, bool buildBypass)
         {
             var g_cloned = times.Clone();
 
@@ -27,6 +38,8 @@ public class BestCitiesSolver : MarshalByRefObject
                 int minCity1 = int.MaxValue;
                 int minCity2 = int.MaxValue;
                 double time = double.MaxValue;
+                PathsInfo[] tmpTmpPathInfo = { };
+                PathsInfo[] tmpPathInfo = { };
                 Edge[] shortestPath = { };
 
                 foreach (var start in nominatedCities)
@@ -48,12 +61,11 @@ public class BestCitiesSolver : MarshalByRefObject
 
                             d[end].Dist -= passThroughCityTimes[end] / 2 + passThroughCityTimes[start] / 2;
 
-                            if (d[end].Dist < minDistTmp)
+                            if (d[end].Dist < time && d[end].Dist < minDistTmp)
                             {
-
                                 minDistTmp = d[end].Dist;
                                 minCityTmp = end;
-                                shortestPathTmp = PathsInfo.ConstructPath(start, end, d);
+                                tmpTmpPathInfo = d;
 
                             }
                         }
@@ -65,7 +77,7 @@ public class BestCitiesSolver : MarshalByRefObject
                             time = minDistTmp;
                             minCity1 = start;
                             minCity2 = minCityTmp;
-                            shortestPath = shortestPathTmp;
+                            tmpPathInfo = tmpTmpPathInfo;
                         }
                     }
                 }
@@ -73,6 +85,10 @@ public class BestCitiesSolver : MarshalByRefObject
                 if (time == double.MaxValue)
                 {
                     return null;
+                }
+                else
+                {
+                    shortestPath = PathsInfo.ConstructPath(minCity1, minCity2, tmpPathInfo);
                 }
 
                 return (minCity1, minCity2, null, time, shortestPath);
@@ -84,6 +100,15 @@ public class BestCitiesSolver : MarshalByRefObject
                 double time = double.MaxValue;
                 Edge[] shortestPath = { };
                 int byPassCity = -1;
+                PathsInfo[] tmpTmpPathInfo = { };
+                PathsInfo[] tmpPathInfo = { };
+                int counter = 0;
+
+                //if (g_cloned.VerticesCount == 12 * 12)
+                //{
+                //    GraphExport ge = new GraphExport();
+                //    ge.Export(g_cloned);
+                //}
 
                 foreach (var start in nominatedCities)
                 {
@@ -91,63 +116,23 @@ public class BestCitiesSolver : MarshalByRefObject
 
                     double minDistTmp = double.MaxValue;
                     int minCityTmp = -1;
-                    int byPassCityTmp = -1;
                     Edge[] shortestPathTmp = { };
 
                     g_cloned.DijkstraShortestPaths(start, out PathsInfo[] d);
-
 
                     foreach (var end in nominatedCities)
                     {
                         if (start != end)
                         {
 
-
-
-
                             d[end].Dist -= passThroughCityTimes[end] / 2 + passThroughCityTimes[start] / 2;
 
-                            if (d[end].Dist < minDistTmp)
+                            if (d[end].Dist < minDistTmp && d[end].Dist < time)
                             {
-
                                 minDistTmp = d[end].Dist;
                                 minCityTmp = end;
-                                shortestPathTmp = PathsInfo.ConstructPath(start, end, d);
-
-                            }
-
-
-                            for (int i = 0; i < g_cloned.VerticesCount; i++) // zerujemy jakieœ miasta
-                            {
-                                if (i != start && i != end)
-                                {
-                                    foreach (var potentialByPass in g_cloned.OutEdges(i))
-                                    {
-                                        g_cloned.ModifyEdgeWeight(i, potentialByPass.To, -0.5 * passThroughCityTimes[i]);
-                                    }
-
-                                    //teraz dijkstra
-                                    g_cloned.DijkstraShortestPaths(start, out PathsInfo[] dByPass);
-                                    
-                                    dByPass[end].Dist -= passThroughCityTimes[end] / 2 + passThroughCityTimes[start] / 2;
-
-                                    if (dByPass[end].Dist < minDistTmp)
-                                    {
-
-                                        minDistTmp = dByPass[end].Dist;
-                                        minCityTmp = end;
-                                        shortestPathTmp = PathsInfo.ConstructPath(start, end, dByPass);
-                                        byPassCityTmp = i;
-
-                                    }
-
-
-                                    foreach (var potentialByPass in g_cloned.OutEdges(i))
-                                    {
-                                        g_cloned.ModifyEdgeWeight(i, potentialByPass.To, 0.5 * passThroughCityTimes[i]);
-                                    }
-
-                                }
+                                tmpTmpPathInfo = d;
+                                //shortestPathTmp = PathsInfo.ConstructPath(start, end, d);
                             }
                         }
                     }
@@ -158,15 +143,94 @@ public class BestCitiesSolver : MarshalByRefObject
                             time = minDistTmp;
                             minCity1 = start;
                             minCity2 = minCityTmp;
-                            shortestPath = shortestPathTmp;
-                            byPassCity = byPassCityTmp;
+                            tmpPathInfo = tmpTmpPathInfo;
+                            //shortestPath = shortestPathTmp;
                         }
                     }
+                }
+
+
+                for (int i = 0; i < g_cloned.VerticesCount; i++) // zerujemy jakieœ miasta
+                {
+
+                    //if (g_cloned.VerticesCount > 100 && counter > 20)
+                    //    break;
+
+                    foreach (var potentialByPass in g_cloned.OutEdges(i))
+                    {
+                        g_cloned.ModifyEdgeWeight(i, potentialByPass.To, -0.5 * passThroughCityTimes[i]);
+                    }
+
+
+                    foreach (var start in nominatedCities)
+                    {
+
+                        double minDistTmp = double.MaxValue;
+                        int minCityTmp = -1;
+                        int byPassCityTmp = -1;
+                        Edge[] shortestPathTmp = { };
+
+                        //if (time - passThroughCityTimes[i] > 0)
+                        //{
+                        //    continue;
+                        //}
+
+
+                        g_cloned.DijkstraShortestPaths(start, out PathsInfo[] d);
+
+                        foreach (var end in nominatedCities)
+                        {
+                            counter++;
+                            if (start != end && i != start && i != end)
+                            {
+
+
+                                d[end].Dist -= passThroughCityTimes[end] / 2 + passThroughCityTimes[start] / 2;
+                                if (d[end].Dist < time && d[end].Dist < minDistTmp)
+                                {
+
+                                    minDistTmp = d[end].Dist;
+                                    minCityTmp = end;
+
+                                    tmpTmpPathInfo = d;
+                                    //shortestPathTmp = PathsInfo.ConstructPath(start, end, d);
+                                    byPassCityTmp = i;
+                                    //Console.WriteLine($"start: {start}, end: {end}, byPass: {i}");
+                                }
+
+                            }
+                        }
+
+
+
+                        if (minCityTmp != -1)
+                        {
+                            if (minDistTmp < time)
+                            {
+                                time = minDistTmp;
+                                minCity1 = start;
+                                minCity2 = minCityTmp;
+                                shortestPath = shortestPathTmp;
+                                byPassCity = byPassCityTmp;
+                                tmpPathInfo = tmpTmpPathInfo;
+                            }
+                        }
+                    }
+
+                    foreach (var potentialByPass in g_cloned.OutEdges(i))
+                    {
+                        g_cloned.ModifyEdgeWeight(i, potentialByPass.To, 0.5 * passThroughCityTimes[i]);
+                    }
+
                 }
 
                 if (time == double.MaxValue)
                 {
                     return null;
+                }
+                else
+                {
+                    shortestPath = PathsInfo.ConstructPath(minCity1, minCity2, tmpPathInfo);
                 }
 
                 if (byPassCity == -1)

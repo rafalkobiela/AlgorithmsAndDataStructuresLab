@@ -292,6 +292,11 @@ class BestPairTests : TestModule
 
                 bestPair.TestCases.Add(new BestCityPairTestCase(grid, times, nominated, bestTime, 1*TIME_MULTIPLIER, desc));
                 bestPairWithBypass.TestCases.Add(new BestPairWithBypassTestCase(grid, times, nominated, bestTime-1, true, 1*TIME_MULTIPLIER, desc));
+                foreach(var i in nominated)
+                {
+                    Console.Write($"{i}, ");
+                }
+                Console.WriteLine();
                 }
 
             // Test 8
@@ -408,8 +413,8 @@ class BestPairTests : TestModule
 
                 bestPair.TestCases.Add(new BestCityPairTestCase(grid, times, nominated, bestTime, 2*TIME_MULTIPLIER, desc));
                 bestPairWithBypass.TestCases.Add(new BestPairWithBypassTestCase(grid, times, nominated, bestTime-1, true,2*TIME_MULTIPLIER, desc));
+            //Console.WriteLine($"aaaa {(gridW - 1) * 3 + (gridH - 1) * 3 + gridW * 2 - 3}"); 
                 }
-
             //Test 12
                 {
                 var desc = "Graf pełny, z zerowymi czasami do jednego z wierzchołków i dużym kosztem przejścia przez niego";
@@ -455,6 +460,18 @@ class Program
     {
         public static void Main(string[] args)
             {
+
+
+            var a = new int[] { 1, 2, 3, 4, 5, 6 };
+
+            foreach(var i in a)
+            {
+                if (i == 4)
+                    break;
+                Console.WriteLine(i);
+            }
+
+
             BestPairTests tests = new BestPairTests();
             tests.PrepareTestSets();
             tests.TestSets["BestPair"].PerformTests(false);
