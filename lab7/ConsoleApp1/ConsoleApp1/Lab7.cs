@@ -1,16 +1,14 @@
-using ASD.Graphs;
 using System;
+using System.Linq;
+using ASD.Graphs;
 
 namespace Lab7
 {
-
-    public class BestCitiesSolver : MarshalByRefObject
+public class BestCitiesSolver : MarshalByRefObject
     {
 
-        public (int c1, int c2, int? bypass, double time, Edge[] path)? FindBestCitiesPair(Graph times, int[] passThroughCityTimes, int[] nominatedCities, bool buildBypass)
+    public (int c1, int c2, int? bypass, double time, Edge[] path)? FindBestCitiesPair(Graph times, double[] passThroughCityTimes, int[] nominatedCities, bool buildBypass)
         {
-
-
             var g_cloned = times.Clone();
 
             int n = g_cloned.VerticesCount;
@@ -19,7 +17,7 @@ namespace Lab7
             {
                 foreach (Edge e in g_cloned.OutEdges(v))
                 {
-                    g_cloned.ModifyEdgeWeight(v, e.To, (double)passThroughCityTimes[v] / 2);
+                    g_cloned.ModifyEdgeWeight(v, e.To, passThroughCityTimes[v] / 2);
                 }
             }
 
@@ -48,7 +46,7 @@ namespace Lab7
                         if (start != end)
                         {
 
-                            d[end].Dist -= (double)passThroughCityTimes[end] / 2 + (double)passThroughCityTimes[start] / 2;
+                            d[end].Dist -= passThroughCityTimes[end] / 2 + passThroughCityTimes[start] / 2;
 
                             if (d[end].Dist < minDistTmp)
                             {
@@ -104,7 +102,10 @@ namespace Lab7
                         if (start != end)
                         {
 
-                            d[end].Dist -= (double)passThroughCityTimes[end] / 2 + (double)passThroughCityTimes[start] / 2;
+
+
+
+                            d[end].Dist -= passThroughCityTimes[end] / 2 + passThroughCityTimes[start] / 2;
 
                             if (d[end].Dist < minDistTmp)
                             {
@@ -122,13 +123,13 @@ namespace Lab7
                                 {
                                     foreach (var potentialByPass in g_cloned.OutEdges(i))
                                     {
-                                        g_cloned.ModifyEdgeWeight(i, potentialByPass.To, -0.5 * (double)passThroughCityTimes[i]);
+                                        g_cloned.ModifyEdgeWeight(i, potentialByPass.To, -0.5 * passThroughCityTimes[i]);
                                     }
 
                                     //teraz dijkstra
                                     g_cloned.DijkstraShortestPaths(start, out PathsInfo[] dByPass);
-
-                                    dByPass[end].Dist -= (double)passThroughCityTimes[end] / 2 + (double)passThroughCityTimes[start] / 2;
+                                    
+                                    dByPass[end].Dist -= passThroughCityTimes[end] / 2 + passThroughCityTimes[start] / 2;
 
                                     if (dByPass[end].Dist < minDistTmp)
                                     {
@@ -136,14 +137,14 @@ namespace Lab7
                                         minDistTmp = dByPass[end].Dist;
                                         minCityTmp = end;
                                         shortestPathTmp = PathsInfo.ConstructPath(start, end, dByPass);
-                                        byPassCityTmp = i;                                        
+                                        byPassCityTmp = i;
 
                                     }
 
 
                                     foreach (var potentialByPass in g_cloned.OutEdges(i))
                                     {
-                                        g_cloned.ModifyEdgeWeight(i, potentialByPass.To, 0.5 * (double)passThroughCityTimes[i]);
+                                        g_cloned.ModifyEdgeWeight(i, potentialByPass.To, 0.5 * passThroughCityTimes[i]);
                                     }
 
                                 }
@@ -168,7 +169,7 @@ namespace Lab7
                     return null;
                 }
 
-                if(byPassCity == -1)
+                if (byPassCity == -1)
                 {
                     return (minCity1, minCity2, null, time, shortestPath);
                 }
@@ -177,7 +178,6 @@ namespace Lab7
 
 
             }
-
         }
 
     }

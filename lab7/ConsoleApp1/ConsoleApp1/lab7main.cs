@@ -11,16 +11,16 @@ public class BestCityPairTestCase : TestCase
         private static readonly double EPS = 1e-3;
         private readonly Graph g;
         private readonly Graph gOrig;
-        private readonly int[] passThroughCityTimes;
+        private readonly double[] passThroughCityTimes;
         private readonly int[] nominatedCities;
-        private readonly int[] passThroughCityTimesOrig;
+        private readonly double[] passThroughCityTimesOrig;
         private readonly int[] nominatedCitiesOrig;
 
         protected readonly double? bestTime;
         protected (int, int, int?, double, Edge[])? solution = null;
         protected virtual bool BuildBypass {get => false;}
 
-        public BestCityPairTestCase(Graph g, int[] passThorughCityTimes, int[] nominatedCities, double? bestTime,
+        public BestCityPairTestCase(Graph g, double[] passThorughCityTimes, int[] nominatedCities, double? bestTime,
                                     double timeLimit, string description) : base(timeLimit, null, description)
             {
             this.g = g;
@@ -79,40 +79,27 @@ public class BestCityPairTestCase : TestCase
         private (Result resultCode, string message) CheckPath(Edge[] path, double declaredLength, int declaredStart, int declaredEnd, int? bypass)
             {
             if(path == null)
-                {
                 return (Result.WrongResult, "Zwrócony null zamiast ścieżki");
+            if(path.Length == 0)
+                return (Result.WrongResult, "Zwrócona ścieżka o długości 0");
+            if ( ( path.First().From!=declaredStart || declaredEnd!=path.Last().To ) &&
+                 ( path.First().From!=declaredEnd || declaredStart!=path.Last().To ) )
+                return (Result.WrongResult, "Zwrócona ścieżka nie łączy zwróconych miast");
+            if(path.Any(e => double.IsNaN(g.GetEdgeWeight(e.From, e.To))))
+                return (Result.WrongResult, "W ścieżce jest krawędź, która nie należy do grafu");
+            double l=0;
+            bool good=true;
+            l+=g.GetEdgeWeight(path.First().From, path.First().To);
+            for ( int i=1; i<path.Length && good; i++)
+                {
+                l+=g.GetEdgeWeight(path[i].From, path[i].To);
+                if(!bypass.HasValue || bypass.Value != path[i].From)
+                    l+=passThroughCityTimes[path[i].From];
+                good = good && path[i-1].To == path[i].From;
                 }
-            else
-                if(path.Length == 0)
-                    {
-                    return (Result.WrongResult, "Zwrócona ścieżka o długości 0");
-                    }
-                else
-                    if(path.First().From != declaredStart || declaredEnd != path.Last().To)
-                        {
-                        return (Result.WrongResult, "Zwrócona ścieżka nie łączy zwróconych miast");
-                        }
-                    else
-                        if(path.Any(e => double.IsNaN(g.GetEdgeWeight(e.From, e.To))))
-                            {
-                            return (Result.WrongResult, "W ścieżce jest krawędź, która nie należy do grafu");
-                            }
-                        else
-                            {
-                            double l=0;
-                            bool good=true;
-                            l+=g.GetEdgeWeight(path.First().From, path.First().To);
-                            for(int i=1; i<path.Length && good; i++)
-                                {
-                                l+=g.GetEdgeWeight(path[i].From, path[i].To);
-                                if(!bypass.HasValue || bypass.Value != path[i].From)
-                                    l+=passThroughCityTimes[path[i].From];
-                                good = good && path[i-1].To == path[i].From;
-                                }
-                            return good ? (Math.Abs(l-declaredLength) <EPS ? (Result.Success, $"OK, {PerformanceTime:#0.00}") :
-                                                                             (Result.WrongResult, $"Zwrócono czas {declaredLength}, a ścieżka sumuje się do {l}")) :
-                                          (Result.WrongResult, "Sąsiednie krawędzie w zwróconej ścieżce nie są incydentne");
-                            }
+            return good ? (Math.Abs(l-declaredLength)<EPS ? (Result.Success, $"OK, {PerformanceTime:#0.00}") :
+                                                            (Result.WrongResult, $"Zwrócono czas {declaredLength}, a ścieżka sumuje się do {l}")) :
+                          (Result.WrongResult, "Sąsiednie krawędzie w zwróconej ścieżce nie są incydentne");
             }
 
     }
@@ -122,7 +109,7 @@ public class BestPairWithBypassTestCase : BestCityPairTestCase
         private readonly bool needsBypass;
         protected override bool BuildBypass {get => true;}
 
-        public BestPairWithBypassTestCase(Graph g, int[] passThorughCityTimes, int[] nominatedCities, double? bestTime,
+        public BestPairWithBypassTestCase(Graph g, double[] passThorughCityTimes, int[] nominatedCities, double? bestTime,
                                           bool needsBypass, double timeLimit, string description) :
         base(g, passThorughCityTimes, nominatedCities, bestTime, timeLimit, description)
             {
@@ -164,7 +151,7 @@ class BestPairTests : TestModule
                     var iii = (i-1)*10%7;
                     graph.AddEdge(iii, ii, (i*10+6)%7);
                     }
-                var times = new int[7];
+                var times = new double[7];
                 for(int i=0; i<7; i++)
                     {
                     times[i] = i+2;
@@ -192,7 +179,7 @@ class BestPairTests : TestModule
                     }
                 grid.ModifyEdgeWeight(0, 1, 100000);
 
-                int[] cityTimes = new int[]
+                double[] cityTimes = new double[]
                     {
                     1000, 1000, 1, 1,
                     1, 100, 100, 1,
@@ -218,7 +205,7 @@ class BestPairTests : TestModule
                     twoPaths.AddEdge(5+i, 5+i+1);
                     }
                 int[] nominated = new int[] {0,9};
-                int[] cityTimes = new int[10];
+                double[] cityTimes = new double[10];
 
                 bestPair.TestCases.Add(new BestCityPairTestCase(twoPaths, cityTimes, nominated, null, 1*TIME_MULTIPLIER, description));
                 bestPairWithBypass.TestCases.Add(new BestPairWithBypassTestCase(twoPaths, cityTimes, nominated, null, false, 1*TIME_MULTIPLIER, description));
@@ -234,7 +221,7 @@ class BestPairTests : TestModule
                     twoPaths.AddEdge(5+i, 5+i+1);
                     }
                 int[] nominated = new int[] {0,3,9};
-                int[] cityTimes = new int[10];
+                double[] cityTimes = new double[10];
 
                 bestPair.TestCases.Add(new BestCityPairTestCase(twoPaths, cityTimes, nominated, 3, 1*TIME_MULTIPLIER, description));
                 bestPairWithBypass.TestCases.Add(new BestPairWithBypassTestCase(twoPaths, cityTimes, nominated, 3, false, 1*TIME_MULTIPLIER, description));
@@ -245,7 +232,7 @@ class BestPairTests : TestModule
                 var description = "Dwa wierzchołki połączone krawędzią";
                 var two = new AdjacencyMatrixGraph(false, 2);
                 two.AddEdge(0, 1,5);
-                var times = new int[] {1000, 1001};
+                var times = new double[] {1000, 1001};
                 var bestTime = 5;
                 var nominated = new int[] {0,1};
                 bestPair.TestCases.Add(new BestCityPairTestCase(two, times, nominated,bestTime, 1*TIME_MULTIPLIER, description));
@@ -260,7 +247,7 @@ class BestPairTests : TestModule
                     {
                     path.AddEdge(i, i+1, 1);
                     }
-                var times = new int[] {2,3,4,2, 1, 1,1,8,2};
+                var times = new double[] {2,3,4,2, 1, 1,1,8,2};
                 var bestTime = 4+9;
                 var bestTimeBypass = 4+2;
                 var nominated = new int[] {0,4,8};
@@ -289,7 +276,7 @@ class BestPairTests : TestModule
                         grid.AddEdge(toCoord(x,y), toCoord(x-1, y), 3);
                         }
                     }
-                int[] times =new int[gridW*gridH];
+                double[] times =new double[gridW*gridH];
                 for(int i = 0; i<times.Length; i++)
                     {
                     times[i]=100000;
@@ -313,7 +300,7 @@ class BestPairTests : TestModule
                 var rowCount = 5;
                 var rowLength = 7;
                 var hexes = new AdjacencyListsGraph<SimpleAdjacencyList>(false, rowCount*rowLength);
-                var times = new int[]
+                var times = new double[]
                     {
                     2, 2, 2, 2, 2, 2, 2,
                     50,50,50,50,50,50,50,
@@ -347,7 +334,7 @@ class BestPairTests : TestModule
                         if(i>0) hexes.AddEdge(r*rowLength+i, r*rowLength+i-1, 5);
                         }
                     }
-                var times = new int[]
+                var times = new double[]
                     {
                     2, 2, 2, 2, 2, 2, 2,
                     50,50,50,50,50,50,50,
@@ -373,7 +360,7 @@ class BestPairTests : TestModule
                         full.AddEdge(i, j, i*j);
                         }
                     }
-                var times = new int[50];
+                var times = new double[50];
                 for(int i=0; i<50; i++)
                     {
                     times[50-i-1]=1;
@@ -405,7 +392,7 @@ class BestPairTests : TestModule
                         grid.AddEdge(toCoord(x,y), toCoord(x-1, y), 3);
                         }
                     }
-                int[] times =new int[gridW*gridH];
+                double[] times = new double[gridW*gridH];
                 for(int i = 0; i<times.Length; i++)
                     {
                     times[i]=100000;
@@ -434,7 +421,7 @@ class BestPairTests : TestModule
                         full.AddEdge(i, j, i*j);
                         }
                     }
-                var times = new int[1000];
+                var times = new double[1000];
                 for(int i=0; i<1000; i++)
                     {
                     times[1000-i-1]=2*i;
@@ -455,7 +442,7 @@ class BestPairTests : TestModule
                     {
                     cycle.AddEdge(i, (i+1)%6, 1);
                     }
-                var distances = new int[] {2,2,2,2,2,2};
+                var distances = new double[] {2,2,2,2,2,2};
                 var nominated = new int[] {0,1};
                 var bestTime = 11;
                 bestPairWithBypass.TestCases.Add(new BestPairWithBypassTestCase(cycle, distances, nominated, bestTime, false, 1*TIME_MULTIPLIER, desc));
