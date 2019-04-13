@@ -240,7 +240,7 @@ namespace ASD
                     populations, meetingCosts, budget: 0, capitalCity: 0, bestCampaignPeopleMet: 0, bestCampaignCost: 0));
             }
 
-            {
+            { /*5*/
                 // Drzewo
                 var rgg = new RandomGraphGenerator(7531);
                 var rng = new Random(7531);
@@ -261,8 +261,8 @@ namespace ASD
                     populations, meetingCosts, budget: 10, capitalCity: 0, bestCampaignPeopleMet: 1445, bestCampaignCost: 5));
             }
 
-            {
-                // Graf niespójny
+            { /*6*/
+              // Graf niespójny
                 const int N = 10;
                 var cities = new AdjacencyMatrixGraph(false, N);
 

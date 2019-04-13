@@ -1,7 +1,6 @@
-﻿using System;
+﻿using ASD.Graphs;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using ASD.Graphs;
 
 namespace ASD
 {
@@ -48,25 +47,35 @@ namespace ASD
         /// 
 
 
-        int capital;
-        int currentBest = 0;
-        (int, bool)[] bestPath = new (int, bool)[0];
-        int currentCity;
-        int[] population;
-        List<int> currentPath = new List<int>();
-        Graph g;
-        bool[] isInCurrentPath;
-        double CurrentCost;
-        double budget;
-        double bestBudget;
-        int currentPopulation;
+        private int capital;
+        private int currentBest = 0;
+        private (int, bool)[] bestPath = new (int, bool)[0];
+        private int currentCity;
+        private int[] population;
+        private List<(int, bool)> currentPath = new List<(int, bool)>();
+        private Graph g;
+        private bool[] isInCurrentPath;
+        private double CurrentCost;
+        private double budget;
+        private double bestCost;
+        private int currentPopulation;
+        private double[] meetingCosts;
 
-        public void Print(List<int> a)
+        public void Print(List<(int, bool)> a)
         {
-            Console.Write("path: ");
+            Console.Write($"cost: {CurrentCost}, path: ");
             foreach (var i in a)
             {
-                Console.Write($"{i}, ");
+                Console.Write($"({i.Item1}, {i.Item2}), ");
+            }
+            Console.WriteLine();
+        }
+        public void Print((int, bool)[] a)
+        {
+            Console.Write($"cost: {CurrentCost}, path: ");
+            foreach (var i in a)
+            {
+                Console.Write($"({i.Item1}, {i.Item2}), ");
             }
             Console.WriteLine();
         }
@@ -75,52 +84,53 @@ namespace ASD
             double[] meetingCosts, double budget, int capitalCity, out (int, bool)[] path)
         {
 
+
             capital = capitalCity;
-            currentCity = capitalCity;
             g = cities.Clone();
             population = citiesPopulation;
-            currentPath.Add(capitalCity);
-            isInCurrentPath = new bool[g.VerticesCount];
-            CurrentCost = 0;
-            this.budget = budget;
-            bestBudget = double.MaxValue;
-            currentPopulation = population[capitalCity];
+            currentBest = 0;
 
-            if (g.VerticesCount == 1)
+            this.budget = budget;
+            bestCost = double.MaxValue;
+            this.meetingCosts = meetingCosts;
+            isInCurrentPath = new bool[g.VerticesCount];
+
+            bestPath = new (int, bool)[1] { (capital, false) };
+            currentBest = 0;
+
+            if (meetingCosts[capital] <= budget)
             {
+                currentCity = capitalCity;
+                currentPopulation = population[capitalCity];
+                currentPath.Add((capitalCity, true));
+                currentBest = population[capitalCity];
+                //
+                bestPath = new (int, bool)[1] { (capital, true) };
+                bestCost = meetingCosts[capital];
+                CurrentCost = meetingCosts[capital];
+                ComputeElectionCampaignPath();
                 
-                path = new (int, bool)[1] { (capital, true) };
-                
+            }
+
+            if(meetingCosts[capital] != 0)
+            {
+                currentCity = capitalCity;
                 currentPath.Clear();
+                currentPopulation = 0;
                 CurrentCost = 0;
 
-                return citiesPopulation[capital];
-                
-            }
-            else
-            {
-                bestPath = new (int, bool)[1] { (capital, true) };
-                currentBest = citiesPopulation[capital];
+                currentPath.Add((capitalCity, false));
                 ComputeElectionCampaignPath();
-                path = bestPath;        
             }
-            
-            //foreach(var z in g.OutEdges(2115))
-            //{
-            //    Console.Write($"{z} ");
-            //}
-            //Console.WriteLine();
-            int i = 0;
-            //g.GeneralSearchAll<EdgesStack>(v => { Console.WriteLine($"{v}, {i}"); i++; return true; }, null, null, out int cc);
 
-
+            path = bestPath;
             currentPath.Clear();
             CurrentCost = 0;
             return currentBest;
         }
 
 
-        
+
 
         public void ComputeElectionCampaignPath()
         {
@@ -128,42 +138,35 @@ namespace ASD
 
             int tmpCity = currentCity;
 
-
             if (currentCity == capital && currentPath.Count > 1)
             {
                 int sum = 0;
 
-                foreach (var c in currentPath)
+                for (int i = 0; i < currentPath.Count - 1; i++)
                 {
-                    sum += population[c];
+                    if (currentPath[i].Item2)
+                    {
+                        sum += population[currentPath[i].Item1];
+                    }
                 }
 
-                sum -= population[capital];
                 currentPopulation -= population[capital];
-                //Console.WriteLine($"sum: {sum}, pop: {currentPopulation}");
                 if (sum >= currentBest)
                 {
-                    
-
-                    if(!(sum == currentBest && CurrentCost >= bestBudget)){
+                    if (sum != currentBest || CurrentCost < bestCost)
+                    {
                         currentBest = sum;
                         bestPath = new (int, bool)[currentPath.Count - 1];
 
-                        for (int i = 0; i < currentPath.Count - 1; i++)
-                        {
-                            bestPath[i] = (currentPath[i], true);
-                        }
-                        bestBudget = CurrentCost;
+                        currentPath.CopyTo(0, bestPath, 0, currentPath.Count - 1);
+                        bestCost = CurrentCost;
                     }
-
                 }
             }
             else
             {
                 foreach (var neigh in g.OutEdges(tmpCity))
                 {
-
-
                     if (isInCurrentPath[neigh.To])
                     {
                         continue;
@@ -175,14 +178,31 @@ namespace ASD
                     }
 
 
-                    currentPath.Add(neigh.To);
                     isInCurrentPath[neigh.To] = true;
                     currentCity = neigh.To;
                     CurrentCost += neigh.Weight;
+
+
+
+                    if (meetingCosts[neigh.To] != 0)
+                    {
+                        currentPath.Add((neigh.To, false));
+                        ComputeElectionCampaignPath();
+                        currentPath.RemoveAt(currentPath.Count - 1);
+                    }
+
+
+                    CurrentCost += meetingCosts[neigh.To];
                     currentPopulation += population[neigh.To];
+                    currentPath.Add((neigh.To, true));
 
-                    ComputeElectionCampaignPath();
+                    if (CurrentCost <= budget)
+                    {
+                        ComputeElectionCampaignPath();
+                    }
 
+
+                    CurrentCost -= meetingCosts[neigh.To];
                     currentCity = tmpCity;
                     currentPath.RemoveAt(currentPath.Count - 1);
                     isInCurrentPath[neigh.To] = false;
