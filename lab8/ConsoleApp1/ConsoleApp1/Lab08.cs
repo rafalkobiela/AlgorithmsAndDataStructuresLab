@@ -86,9 +86,9 @@ namespace ASD
 
 
             capital = capitalCity;
-            g = cities.Clone();
+            g = cities;
             population = citiesPopulation;
-            currentBest = 0;
+            currentPopulation = 0;
 
             this.budget = budget;
             bestCost = double.MaxValue;
@@ -113,7 +113,7 @@ namespace ASD
             }
 
             if(meetingCosts[capital] != 0)
-            {
+            {   
                 currentCity = capitalCity;
                 currentPath.Clear();
                 currentPopulation = 0;
@@ -140,28 +140,24 @@ namespace ASD
 
             if (currentCity == capital && currentPath.Count > 1)
             {
-                int sum = 0;
 
-                for (int i = 0; i < currentPath.Count - 1; i++)
-                {
-                    if (currentPath[i].Item2)
-                    {
-                        sum += population[currentPath[i].Item1];
-                    }
-                }
+                bool last = currentPath[currentPath.Count - 1].Item2;
 
-                currentPopulation -= population[capital];
-                if (sum >= currentBest)
+                if(last)
+                    currentPopulation -= population[capital];
+                if (currentPopulation >= currentBest)
                 {
-                    if (sum != currentBest || CurrentCost < bestCost)
+                    if (currentPopulation != currentBest || CurrentCost < bestCost)
                     {
-                        currentBest = sum;
+                        currentBest = currentPopulation;
                         bestPath = new (int, bool)[currentPath.Count - 1];
 
                         currentPath.CopyTo(0, bestPath, 0, currentPath.Count - 1);
                         bestCost = CurrentCost;
                     }
                 }
+                if(last)
+                    currentPopulation += population[capital];
             }
             else
             {

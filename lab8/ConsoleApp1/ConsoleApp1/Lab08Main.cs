@@ -7,13 +7,15 @@ namespace ASD
 {
     class ElectionCampaignTestCase : TestCase
     {
+        private const double EPS = 0.0001;
+
         private readonly Graph _cities;
         private readonly int[] _citiesPopulation;
         private readonly double[] _meetingCosts;
         private readonly double _budget;
         private readonly int _capitalCity;
         private readonly int _bestCampaignPeopleMet;
-        private readonly int _bestCampaignCost;
+        private readonly double _bestCampaignCost;
 
         // Cloned properties to verify that input data has not been modified
         private readonly Graph _citiesClone;
@@ -25,7 +27,7 @@ namespace ASD
 
         public ElectionCampaignTestCase(double timeLimit, Exception expectedException, string description,
             Graph cities, int[] citiesPopulation, double[] meetingCosts, double budget,
-            int capitalCity, int bestCampaignPeopleMet, int bestCampaignCost)
+            int capitalCity, int bestCampaignPeopleMet, double bestCampaignCost)
             : base(timeLimit, expectedException, description)
         {
             _cities = cities;
@@ -145,7 +147,7 @@ namespace ASD
             {
                 // Verify that the least expensive path is returned
                 var pathCost = _budget - budgetLeft;
-                if (pathCost != _bestCampaignCost)
+                if (Math.Abs(pathCost - _bestCampaignCost) > EPS)
                     return (Result.WrongResult, $"Wrong path cost: {pathCost} (expected {_bestCampaignCost})");
             }
 
@@ -170,11 +172,11 @@ namespace ASD
 
         public override void PrepareTestSets()
         {
-            var freeMeetingsTestSet = new TestSet(new Lab08(), "Część 1 - bez kosztów organizacji spotkań (1.5 pkt)");
-            var meetingsWithCostsTestSet = new TestSet(new Lab08(), "Część 2 - z kosztami organizacji spotkań (1.5 pkt)");
+            var freeMeetingsTestSet = new TestSet(new Lab08(), "Część 1 - bez kosztów organizacji spotkań (1.5 pkt)",null,null,2);
+            var meetingsWithCostsTestSet = new TestSet(new Lab08(), "Część 2 - z kosztami organizacji spotkań (1.5 pkt)",null,null,2);
 
-            var performanceFreeMeetingsTestSet = new TestSet(new Lab08(), "Część 1 (wydajnościowe) - bez kosztów organizacji spotkań (0.5 pkt)");
-            var performanceMeetingsWithCostsTestSet = new TestSet(new Lab08(), "Część 2 (wydajnościowe) - z kosztami organizacji spotkań (0.5 pkt)");
+            var performanceFreeMeetingsTestSet = new TestSet(new Lab08(), "Część 1 (wydajnościowe) - bez kosztów organizacji spotkań (0.5 pkt)",null,null,2);
+            var performanceMeetingsWithCostsTestSet = new TestSet(new Lab08(), "Część 2 (wydajnościowe) - z kosztami organizacji spotkań (0.5 pkt)",null,null,2);
 
             TestSets["ElectionCampaignFreeMeetings"] = freeMeetingsTestSet;
             TestSets["ElectionCampaignMeetingsWithCosts"] = meetingsWithCostsTestSet;
@@ -240,7 +242,7 @@ namespace ASD
                     populations, meetingCosts, budget: 0, capitalCity: 0, bestCampaignPeopleMet: 0, bestCampaignCost: 0));
             }
 
-            { /*5*/
+            {
                 // Drzewo
                 var rgg = new RandomGraphGenerator(7531);
                 var rng = new Random(7531);
@@ -261,8 +263,8 @@ namespace ASD
                     populations, meetingCosts, budget: 10, capitalCity: 0, bestCampaignPeopleMet: 1445, bestCampaignCost: 5));
             }
 
-            { /*6*/
-              // Graf niespójny
+            {
+                // Graf niespójny
                 const int N = 10;
                 var cities = new AdjacencyMatrixGraph(false, N);
 
@@ -369,9 +371,9 @@ namespace ASD
                 }
 
                 var description = "Losowy graf";
-                freeMeetingsTestCases.Add(new ElectionCampaignTestCase(2 * TIME_MULTIPLIER, null, description, cities,
+                freeMeetingsTestCases.Add(new ElectionCampaignTestCase(2*TIME_MULTIPLIER, null, description, cities,
                     populations, meetingCosts: new double[N], budget: 25, capitalCity: 0, bestCampaignPeopleMet: 34761, bestCampaignCost: 24));
-                meetingsWithCostsTestCases.Add(new ElectionCampaignTestCase(3 * TIME_MULTIPLIER, null, description, cities,
+                meetingsWithCostsTestCases.Add(new ElectionCampaignTestCase(3*TIME_MULTIPLIER, null, description, cities,
                     populations, meetingCosts, budget: 25, capitalCity: 0, bestCampaignPeopleMet: 16511, bestCampaignCost: 25));
             }
             #endregion
@@ -452,7 +454,7 @@ namespace ASD
                     populations[i] = rng.Next(10, 20);
                 }
 
-                performanceFreeMeetingsTestCases.Add(new ElectionCampaignTestCase(30 * TIME_MULTIPLIER, null, "Długi cykl", cities,
+                performanceFreeMeetingsTestCases.Add(new ElectionCampaignTestCase(3 * TIME_MULTIPLIER, null, "Długi cykl", cities,
                     populations, meetingCosts: new double[N], budget: 500000, capitalCity: 0, bestCampaignPeopleMet: 57805, bestCampaignCost: 4000));
             }
             #endregion
