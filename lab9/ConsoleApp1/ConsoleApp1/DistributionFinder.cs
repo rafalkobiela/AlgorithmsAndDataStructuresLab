@@ -18,12 +18,6 @@ namespace Lab9
         {
 
             int n = limits.Length + preferences.Length + 2;
-            //n - 2 - żródło
-            //n - 1 - ujście
-
-            //0 - limits.Length - 1 - zajęcia
-            //limits.Length - limits.Length + preferences.Length - studenty
-
 
             Graph g = new AdjacencyListsGraph<HashTableAdjacencyList>(true, n);
 
@@ -41,13 +35,10 @@ namespace Lab9
             {
                 for (int j = 0; j < preferences[i].Length; j++)
                 {
-                    g.AddEdge(i + limits.Length, preferences[i][j], 1);
+                    if(isSportActivity == null || isSportActivity[preferences[i][j]])
+                        g.AddEdge(i + limits.Length, preferences[i][j], 1);
                 }
             }
-
-            //GraphExport a = new GraphExport();
-
-            //a.Export(g);
 
 
             (double satisf, Graph initialFlow) = g.FordFulkersonDinicMaxFlow(n - 1, n - 2, MaxFlowGraphExtender.DFSBlockingFlow);
@@ -60,7 +51,7 @@ namespace Lab9
             }
 
 
-            var part = new int[limits.Length];
+            var participants = new int[limits.Length];
 
             for (int i = 0; i < preferences.Length; i++)
             {
@@ -69,19 +60,39 @@ namespace Lab9
                     if (initialFlow.GetEdgeWeight(i + limits.Length, preferences[i][j]) == 1)
                     {
                         bestDistribution[i] = preferences[i][j];
-                        part[preferences[i][j]]++;
+                        participants[preferences[i][j]]++;
                         break;
                     }
                 }
             }
-            //print(bestDistribution);
-            //return ((int)satisf, null);
-
-            //print(part);
 
 
-            return ((int)satisf, bestDistribution);
+            if (isSportActivity == null)
+            {
+                return ((int)satisf, bestDistribution);
+            }
+            else
+            {
 
+                bool possible = true;
+
+                for(int i = 0; i<limits.Length; i++)
+                {
+                    if(isSportActivity[i] && limits[i] != participants[i])
+                    {
+                        possible = false;
+                    }
+                }
+
+                if (possible)
+                {
+                    return (1, bestDistribution);
+                }
+                else
+                {
+                    return (0, null);
+                }
+            }
 
 
         }

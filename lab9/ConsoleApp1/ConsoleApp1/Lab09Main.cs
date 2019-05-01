@@ -241,7 +241,7 @@ namespace Lab9
                 };
                 var isSportsActivity = new bool[] { true, false };
 
-                TestSets["Sports"].TestCases.Add(new Lab09TestCase(defaultTimeLimit, description, limits, preferences, isSportsActivity, 0));
+                TestSets["Sports"].TestCases.Add(new Lab09TestCase(defaultTimeLimit, description, limits, preferences, isSportsActivity, 1));
             }
 
             {
@@ -278,7 +278,7 @@ namespace Lab9
                 };
                 var isSportsActivity = new bool[] { false, true, false, true, false, true };
 
-                TestSets["Sports"].TestCases.Add(new Lab09TestCase(defaultTimeLimit, description, limits, preferences, isSportsActivity, 0));
+                TestSets["Sports"].TestCases.Add(new Lab09TestCase(defaultTimeLimit, description, limits, preferences, isSportsActivity, 1));
             }
 
             {
@@ -344,7 +344,7 @@ namespace Lab9
                 for (int i = 0; i < 10; i++) isSportsActivity[i] = true;
                 isSportsActivity[6] = false;
 
-                TestSets["Sports"].TestCases.Add(new Lab09TestCase(defaultTimeLimit, description, limits, preferences, isSportsActivity, 0));
+                TestSets["Sports"].TestCases.Add(new Lab09TestCase(defaultTimeLimit, description, limits, preferences, isSportsActivity, 1));
             }
         }
 
