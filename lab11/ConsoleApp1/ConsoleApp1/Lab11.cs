@@ -166,103 +166,138 @@ namespace ASD
             poly1.CopyTo(poly, 0);
             poly2.CopyTo(poly, poly1.Length);
 
-
             int n1 = poly1.Length;
-            (double, double) startingPoint1 = poly1[0];
-            int startingIndex1 = 0;
-
-
-
-            for (int i = 1; i < n1; i++)
-            {
-                if (poly1[i].Item1 < startingPoint1.Item1)
-                {
-                    startingPoint1 = poly1[i];
-                    startingIndex1 = i;
-                }
-                else if (poly1[i].Item1 == startingPoint1.Item1 && poly1[i].Item2 < startingPoint1.Item2)
-                {
-                    startingPoint1 = poly1[i];
-                    startingIndex1 = i;
-                }
-            }
-
-
             int n2 = poly2.Length;
-            (double, double) startingPoint2 = poly2[0];
-            int startingIndex2 = 0;
-
-            for (int i = 1; i < n2; i++)
-            {
-                if (poly2[i].Item1 < startingPoint2.Item1)
-                {
-                    startingPoint2 = poly2[i];
-                    startingIndex2 = i;
-                }
-                else if (poly2[i].Item1 == startingPoint2.Item1 && poly2[i].Item2 < startingPoint2.Item2)
-                {
-                    startingPoint2 = poly2[i];
-                    startingIndex2 = i;
-                }
-            }
-            Console.WriteLine();
-            Console.Write("poly1");
-            print(poly1);
-            Console.Write("poly2");
-            print(poly2);
-            Console.WriteLine();
-            Console.WriteLine($"Starting point 1 ({startingPoint1})");
-            Console.WriteLine($"Starting point 2 ({startingPoint2})");
-
-            var upper1 = new List<(double, double)>();
-            var upper2 = new List<(double, double)>();
-
-            var down1 = new List<(double, double)>();
-            var down2 = new List<(double, double)>();
-
-            for(int i = startingIndex1; i<n1 + startingIndex1; i++)
-            //foreach(var i in poly1)
-            {
-                if (poly1[i % n1].Item2 > startingPoint1.Item2)
-                    upper1.Add(poly1[i % n1]);
-                else
-                    down1.Add(poly1[i % n1]);
-            }
-
-            for (int i = startingIndex2; i < n1 + startingIndex2; i++)
-            //foreach (var i in poly2)
-            {
-                if (poly2[i % n2].Item2 > startingPoint2.Item2)
-                    upper2.Add(poly2[i % n2]);
-                else
-                    down2.Add(poly2[i % n2]);
-            }
-
-            Console.Write("upper1");
-            print(upper1);
-            Console.Write("down1");
-            print(down1);
-            Console.WriteLine();
-
-            Console.Write("upper2");
-            print(upper2);
-            Console.Write("down2");
-            print(down2);
-            Console.WriteLine();
-
-            var upper = mergeArrays(upper1.ToArray(), upper2.ToArray());
-            var down = mergeArrays(down1.ToArray(), down2.ToArray());
-
-            Console.Write("upper NEW");
-            print(upper);
-            Console.Write("down NEW");
-            print(down);
-            Console.WriteLine();
-
 
             poly = mergeArrays(poly1, poly2);
 
+            //ma być najbardziej po lewo u góry
+            (double, double) startingPoint1 = poly1[0];
+            (double, double) startingPoint2 = poly2[0];
 
+            //ma być nabardziej po prawo na dole
+            (double, double) endingPoint1 = poly1[0];
+            (double, double) endingPoint2 = poly2[0];
+
+
+            for(int i = 1; i<n1; i++)
+            {
+                if (startingPoint1.Item1 == poly1[i].Item1 && startingPoint1.Item2 < poly1[i].Item2)
+                {
+                    startingPoint1 = poly1[i];
+                }
+                if(startingPoint1.Item1 > poly1[i].Item1)
+                {
+                    startingPoint1 = poly1[i];
+                }
+
+                if (endingPoint1.Item1 == poly1[i].Item1 && endingPoint1.Item2 > poly1[i].Item2)
+                {
+                    endingPoint1 = poly1[i];
+                }
+                if (endingPoint1.Item1 < poly1[i].Item1)
+                {
+                    endingPoint1 = poly1[i];
+                }
+            }
+
+
+            for (int i = 1; i < n2; i++)
+            {
+                if (startingPoint2.Item1 == poly2[i].Item1 && startingPoint2.Item2 < poly2[i].Item2)
+                {
+                    startingPoint2 = poly2[i];
+                }
+                if (startingPoint2.Item1 > poly2[i].Item1)
+                {
+                    startingPoint2 = poly2[i];
+                }
+
+                if (endingPoint2.Item1 == poly2[i].Item1 && endingPoint2.Item2 > poly2[i].Item2)
+                {
+                    endingPoint2 = poly2[i];
+                }
+                if (endingPoint2.Item1 < poly2[i].Item1)
+                {
+                    endingPoint2 = poly2[i];
+                }
+            }
+
+            Console.WriteLine();
+            Console.WriteLine($"s1: {startingPoint1}");
+            Console.WriteLine($"e1: {endingPoint1}");
+            Console.WriteLine($"s2: {startingPoint2}");
+            Console.WriteLine($"e2: {endingPoint2}");
+
+            //Dzielenie na górę i dół
+
+            var upper1 = new List<(double, double)>();
+            var down1 = new List<(double, double)>();
+
+            upper1.Add(startingPoint1);
+            down1.Add(startingPoint1);
+
+            foreach(var i in poly1)
+            {
+                if((i.Item1 == startingPoint1.Item1 && i.Item2 == startingPoint1.Item2) || (i.Item1 == endingPoint1.Item1 && i.Item2 == endingPoint1.Item2))
+                {
+                    continue;
+                }
+                else
+                {
+                    if( Cross(startingPoint1, endingPoint1, i) >=0)
+                    {
+                        upper1.Add(i);
+                    }
+                    else
+                    {
+                        down1.Add(i);
+                    }
+                }
+            }
+
+            upper1.Add(endingPoint1);
+            down1.Add(endingPoint1);
+
+            Console.Write("Upper1: ");
+            print(upper1);
+            Console.Write("Down1: ");
+            print(down1);
+
+
+
+            var upper2 = new List<(double, double)>();
+            var down2 = new List<(double, double)>();
+
+            upper2.Add(startingPoint2);
+            down2.Add(startingPoint2);
+
+            foreach (var i in poly2)
+            {
+                if ((i.Item1 == startingPoint2.Item1 && i.Item2 == startingPoint2.Item2) || (i.Item1 == endingPoint2.Item1 && i.Item2 == endingPoint2.Item2))
+                {
+                    continue;
+                }
+                else
+                {
+                    if (Cross(startingPoint2, endingPoint2, i) >= 0)
+                    {
+                        upper2.Add(i);
+                    }
+                    else
+                    {
+                        down2.Add(i);
+                    }
+                }
+            }
+
+            upper2.Add(endingPoint2);
+            down2.Add(endingPoint2);
+
+            Console.Write("Upper2: ");
+            print(upper2);
+            Console.Write("Down2: ");
+            print(down2);
 
             return ConvexHull(poly);
 
