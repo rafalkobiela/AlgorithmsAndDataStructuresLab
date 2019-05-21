@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using static ASD.TestCase;
 
 namespace ASD
 {
-    class Utils
+    internal class Utils
     {
         public static (Result resultCode, string message) VerifyHull((double, double)[] expected, (double, double)[] actual)
         {
             if (actual == null)
+            {
                 return (Result.WrongResult, "[FAILED] expected solution, got null");
+            }
 
             var expectedAsSet = new HashSet<(double, double)>(expected);
             var resultAsSet = new HashSet<(double, double)>(actual);
@@ -21,16 +22,24 @@ namespace ASD
             bool goodOrder = VerifyOrder(expected, actual);
 
             if (!goodElements)
+            {
                 return (Result.WrongResult, "[FAILED] Your solution has invalid vertices");
+            }
 
             if (!allElements)
+            {
                 return (Result.WrongResult, "[FAILED] Your solution misses some vertices of a solution");
+            }
 
             if (!noDuplicates)
+            {
                 return (Result.WrongResult, "[FAILED] Your solution has good elements but contains duplicates");
+            }
 
             if (!goodOrder)
+            {
                 return (Result.WrongResult, "[FAILED] Your solution has good elements but in invalid order");
+            }
 
             return (Result.Success, "[PASSED] OK");
         }
@@ -38,7 +47,10 @@ namespace ASD
         private static bool VerifyOrder((double, double)[] expected, (double, double)[] actual)
         {
             if (expected.Length != actual.Length)
+            {
                 return false;
+            }
+
             for (int shift = 0; shift < expected.Length; shift++)
             {
                 bool shiftedEqualsToExpected = true;
@@ -51,13 +63,15 @@ namespace ASD
                     }
                 }
                 if (shiftedEqualsToExpected)
+                {
                     return true;
+                }
             }
             return false;
         }
     }
 
-    class ConvexHullTestCase : TestCase
+    internal class ConvexHullTestCase : TestCase
     {
         private readonly (double, double)[] _points;
         private readonly (double, double)[] _expected;
@@ -83,7 +97,7 @@ namespace ASD
         }
     }
 
-    class ConvexHullTwoTestCase : TestCase
+    internal class ConvexHullTwoTestCase : TestCase
     {
         private readonly (double, double)[] _first;
         private readonly (double, double)[] _second;
@@ -111,7 +125,7 @@ namespace ASD
         }
     }
 
-    class PolygonsHullTester : TestModule
+    internal class PolygonsHullTester : TestModule
     {
         private const int TIME_MULTIPLIER = 1;
 
@@ -128,6 +142,15 @@ namespace ASD
             convexHullTestSet.TestCases.Add(new ConvexHullTestCase(TIME_MULTIPLIER, null, "Single point",
                 new[] { (0.0, 0.0) },
                 new[] { (0.0, 0.0) }));
+            convexHullTestSet.TestCases.Add(new ConvexHullTestCase(TIME_MULTIPLIER, null, "Single point",
+                new[] { (0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0), (1.0, 0.5), (1.0, 0.5), (1.0, 0.5), (1.0, 1.0) },
+                new[] { (0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0) }));
+            convexHullTestSet.TestCases.Add(new ConvexHullTestCase(TIME_MULTIPLIER, null, "vertical line",
+                new[] { (0.0, 0.0), (0.0, 1.0), (0.0, 2.0), (0.0, 3.0), (0.0, 4.0), (0.0, 5.0), (0.0, 2.0), (0.0, 8.0) },
+                new[] { (0.0, 0.0), (0.0, 8.0) }));
+            convexHullTestSet.TestCases.Add(new ConvexHullTestCase(TIME_MULTIPLIER, null, "horizontal line",
+                new[] { (0.0, 0.0), (5.0, 0.0), (4.0, 0.0), (3.0, 0.0), (2.0, 0.0), },
+                new[] { (0.0, 0.0), (5.0, 0.0) }));
             convexHullTestSet.TestCases.Add(new ConvexHullTestCase(TIME_MULTIPLIER, null, "Segment",
                 new[] { (0.0, 0.0), (1.0, 1.0) },
                 new[] { (0.0, 0.0), (1.0, 1.0) }));
@@ -159,14 +182,14 @@ namespace ASD
             for (var i = 0; i < 1000; i++)
             {
                 var point = (random.NextDouble() * 10, random.NextDouble() * 10);
-                points.Add(point);                                                                                                                                                                                                                
+                points.Add(point);
             }
             foreach (var v in vertices)
             {
                 points.Insert(random.Next(points.Count), v);
             }
 
-            return new ConvexHullTestCase(TIME_MULTIPLIER, null, "Large random", points.ToArray(), vertices);                                                       
+            return new ConvexHullTestCase(TIME_MULTIPLIER, null, "Large random", points.ToArray(), vertices);
         }
 
         private TestSet ConvexHullOfTwoTests()
@@ -213,14 +236,16 @@ namespace ASD
         }
     }
 
-    class LabMain
+    internal class LabMain
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             var tests = new PolygonsHullTester();
             tests.PrepareTestSets();
             foreach (var testSet in tests.TestSets.Values)
+            {
                 testSet.PerformTests(false);
+            }
         }
     }
 }

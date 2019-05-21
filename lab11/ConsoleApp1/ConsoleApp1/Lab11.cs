@@ -17,43 +17,10 @@ namespace ASD
 
         public double Distance((double, double) p1, (double, double) p2)
         {
-            double dx, dy;
-            dx = p1.Item1 - p2.Item1;
-            dy = p1.Item2 - p2.Item2;
-            return Math.Sqrt(dx * dx + dy * dy);
-        }
-
-        public double CrossProduct((double, double) p1, (double, double) p2)
-        { return p1.Item1 * p2.Item2 - p2.Item1 * p1.Item2; }
-
-
-
-        public (double, double) Diff((double, double) p1, (double, double) p2)
-        {
-            return (p1.Item1 - p2.Item1, p1.Item2 - p2.Item2);
+            return Math.Sqrt((p1.Item1 - p2.Item1) * (p1.Item1 - p2.Item1) + (p1.Item2 - p2.Item2) * (p1.Item2 - p2.Item2));
         }
 
 
-        public void print((double, double)[] p)
-        {
-            Console.WriteLine();
-            foreach (var i in p)
-            {
-                Console.Write($"({i.Item1}, {i.Item2})");
-            }
-            Console.WriteLine();
-        }
-
-
-        public void print(List<(double, double)> p)
-        {
-            Console.WriteLine();
-            foreach (var i in p)
-            {
-                Console.Write($"({i.Item1}, {i.Item2})");
-            }
-            Console.WriteLine();
-        }
 
 
         public (double, double)[] mergeArraysDown((double, double)[] t1, (double, double)[] t2)
@@ -156,44 +123,6 @@ namespace ASD
         }
 
 
-        public (double, double)[] mergeArrays((double, double)[] t1, (double, double)[] t2)
-        {
-
-            int t1_iter = 0;
-            int t2_iter = 0;
-
-            (double, double)[] t = new (double, double)[t2.Length + t1.Length];
-
-            for (int i = 0; i < t1.Length + t2.Length; i++)
-            {
-
-                if (t1_iter == t1.Length)
-                {
-                    t[i] = t2[t2_iter];
-                    t2_iter++;
-                }
-                else if (t2_iter == t2.Length)
-                {
-                    t[i] = t1[t1_iter];
-                    t1_iter++;
-                }
-                else
-                {
-                    if (t1[t1_iter].Item1 > t2[t2_iter].Item1)
-                    {
-                        t[i] = t2[t2_iter];
-                        t2_iter++;
-                    }
-                    else
-                    {
-                        t[i] = t1[t1_iter];
-                        t1_iter++;
-                    }
-                }
-            }
-
-            return t;
-        }
 
         // Etap 1
         // po prostu otoczka wypukła
@@ -221,7 +150,6 @@ namespace ASD
 
             sortedPoints.Sort((p1, p2) =>
             {
-
                 int crossProduct = Cross(p1, startingPoint, p2);
                 if (crossProduct == 0)
                 {
@@ -231,21 +159,18 @@ namespace ASD
 
             });
 
-
             List<(double, double)> convexHull = new List<(double, double)>();
             convexHull.Add(startingPoint);
             convexHull.Add(sortedPoints[0]);
 
             for (int k = 1; k < n - 1; k++)
             {
-
                 while (convexHull.Count >= 2 && Cross(convexHull[convexHull.Count - 2], convexHull[convexHull.Count - 1], sortedPoints[k]) <= 0)
                     convexHull.RemoveAt(convexHull.Count - 1);
 
                 convexHull.Add(sortedPoints[k]);
             }
 
-            //print(convexHull.ToArray());
             return convexHull.ToArray();
         }
 
@@ -255,17 +180,9 @@ namespace ASD
         public (double, double)[] ConvexHullOfTwo((double, double)[] poly1, (double, double)[] poly2)
         {
 
-            int n = poly1.Length + poly2.Length;
-
-            var poly = new (double, double)[n];
-
-            poly1.CopyTo(poly, 0);
-            poly2.CopyTo(poly, poly1.Length);
 
             int n1 = poly1.Length;
             int n2 = poly2.Length;
-
-            poly = mergeArrays(poly1, poly2);
 
             //ma być najbardziej po lewo dół
             (double, double) startingPoint1 = poly1[0];
@@ -331,11 +248,6 @@ namespace ASD
                 }
             }
 
-            //Console.WriteLine();
-            //Console.WriteLine($"s1: {startingPoint1}");
-            //Console.WriteLine($"e1: {endingPoint1}");
-            //Console.WriteLine($"s2: {startingPoint2}");
-            //Console.WriteLine($"e2: {endingPoint2}");
 
             //Dzielenie na górę i dół
 
@@ -349,7 +261,6 @@ namespace ASD
                 if (poly1[(i + startingIndex1) % n1].Equals(endingPoint1))
                 {
                     afterEnding = true;
-                    //upper1.Add(poly1[(i + startingIndex1) % n1]);
                     down1.Add(poly1[(i + startingIndex1) % n1]);
                 }
                 if (afterEnding)
@@ -373,7 +284,6 @@ namespace ASD
                 if (poly2[(i + startingIndex2) % n2].Equals(endingPoint2))
                 {
                     afterEnding = true;
-                    //upper2.Add(poly2[(i + startingIndex2) % n2]);
                     down2.Add(poly2[(i + startingIndex2) % n2]);
                 }
                 if (afterEnding)
@@ -387,25 +297,11 @@ namespace ASD
             }
 
 
-            //Console.Write("Upper1: ");
-            //print(upper1);
-            //Console.Write("Down1: ");
-            //print(down1);
-
-            //Console.Write("Upper2: ");
-            //print(upper2);
-            //Console.Write("Down2: ");
-            //print(down2);
-
             //Łączenie tablic 
 
             var down = mergeArraysDown(down1.ToArray(), down2.ToArray());
             var up = mergeArraysUp(upper1.ToArray(), upper2.ToArray());
 
-            //Console.Write("Upper: ");
-            //print(up);
-            //Console.Write("Down: ");
-            //print(down);
 
             List<(double, double)> convexHullDown = new List<(double, double)>();
             convexHullDown.Add(down[0]);
@@ -413,7 +309,6 @@ namespace ASD
 
             for (int k = 2; k < down.Length; k++)
             {
-
                 while (convexHullDown.Count >= 2 &&
                         Cross(convexHullDown[convexHullDown.Count - 2], convexHullDown[convexHullDown.Count - 1], down[k]) <= 0)
                     convexHullDown.RemoveAt(convexHullDown.Count - 1);
@@ -434,12 +329,6 @@ namespace ASD
 
                 convexHullUp.Add(up[k]);
             }
-
-            //Console.Write("UpConvexHull: ");
-            //print(convexHullUp);
-
-            //Console.Write("DownConvexHull: ");
-            //print(convexHullDown);
 
 
             List<(double, double)> convexHull = new List<(double, double)>();
