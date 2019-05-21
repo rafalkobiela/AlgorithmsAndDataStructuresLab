@@ -56,6 +56,106 @@ namespace ASD
         }
 
 
+        public (double, double)[] mergeArraysDown((double, double)[] t1, (double, double)[] t2)
+        {
+            int t1_iter = 0;
+            int t2_iter = 0;
+
+            (double, double)[] t = new (double, double)[t2.Length + t1.Length];
+            for (int i = 0; i < t1.Length + t2.Length; i++)
+            {
+                if (t1_iter == t1.Length)
+                {
+                    t[i] = t2[t2_iter];
+                    t2_iter++;
+                }
+                else if (t2_iter == t2.Length)
+                {
+                    t[i] = t1[t1_iter];
+                    t1_iter++;
+                }
+                else
+                {
+                    if (t1[t1_iter].Item1 == t2[t2_iter].Item1)
+                    {
+                        if (t1[t1_iter].Item2 > t2[t2_iter].Item2)
+                        {
+                            t[i] = t2[t2_iter];
+                            t2_iter++;
+                        }
+                        else
+                        {
+                            t[i] = t1[t1_iter];
+                            t1_iter++;
+                        }
+                    }
+                    else if (t1[t1_iter].Item1 > t2[t2_iter].Item1)
+                    {
+                        t[i] = t2[t2_iter];
+                        t2_iter++;
+                    }
+                    else
+                    {
+                        t[i] = t1[t1_iter];
+                        t1_iter++;
+                    }
+                }
+            }
+
+            return t;
+        }
+
+
+        public (double, double)[] mergeArraysUp((double, double)[] t1, (double, double)[] t2)
+        {
+            int t1_iter = 0;
+            int t2_iter = 0;
+
+            (double, double)[] t = new (double, double)[t2.Length + t1.Length];
+            for (int i = 0; i < t1.Length + t2.Length; i++)
+            {
+                if (t1_iter == t1.Length)
+                {
+                    t[i] = t2[t2_iter];
+                    t2_iter++;
+                }
+                else if (t2_iter == t2.Length)
+                {
+                    t[i] = t1[t1_iter];
+                    t1_iter++;
+                }
+                else
+                {
+                    if (t1[t1_iter].Item1 == t2[t2_iter].Item1)
+                    {
+                        if (t1[t1_iter].Item2 < t2[t2_iter].Item2)
+                        {
+                            t[i] = t2[t2_iter];
+                            t2_iter++;
+                        }
+                        else
+                        {
+                            t[i] = t1[t1_iter];
+                            t1_iter++;
+                        }
+                    }
+                    else if (t1[t1_iter].Item1 < t2[t2_iter].Item1)
+                    {
+                        t[i] = t2[t2_iter];
+                        t2_iter++;
+                    }
+                    else
+                    {
+                        t[i] = t1[t1_iter];
+                        t1_iter++;
+                    }
+                }
+            }
+
+            return t;
+        }
+
+
         public (double, double)[] mergeArrays((double, double)[] t1, (double, double)[] t2)
         {
 
@@ -89,11 +189,7 @@ namespace ASD
                         t[i] = t1[t1_iter];
                         t1_iter++;
                     }
-
                 }
-
-
-
             }
 
             return t;
@@ -140,7 +236,7 @@ namespace ASD
             convexHull.Add(startingPoint);
             convexHull.Add(sortedPoints[0]);
 
-            for (int k = 0; k < n - 1; k++)
+            for (int k = 1; k < n - 1; k++)
             {
 
                 while (convexHull.Count >= 2 && Cross(convexHull[convexHull.Count - 2], convexHull[convexHull.Count - 1], sortedPoints[k]) <= 0)
@@ -171,135 +267,194 @@ namespace ASD
 
             poly = mergeArrays(poly1, poly2);
 
-            //ma być najbardziej po lewo u góry
+            //ma być najbardziej po lewo dół
             (double, double) startingPoint1 = poly1[0];
             (double, double) startingPoint2 = poly2[0];
+            int startingIndex1 = 0;
+            int startingIndex2 = 0;
 
-            //ma być nabardziej po prawo na dole
+            //ma być nabardziej po prawo na góra
             (double, double) endingPoint1 = poly1[0];
             (double, double) endingPoint2 = poly2[0];
+            int endingIndex1 = 0;
+            int endingIndex2 = 0;
 
 
-            for(int i = 1; i<n1; i++)
+            for (int i = 1; i < n1; i++)
             {
-                if (startingPoint1.Item1 == poly1[i].Item1 && startingPoint1.Item2 < poly1[i].Item2)
+                if (startingPoint1.Item1 == poly1[i].Item1 && startingPoint1.Item2 > poly1[i].Item2)
                 {
                     startingPoint1 = poly1[i];
+                    startingIndex1 = i;
                 }
-                if(startingPoint1.Item1 > poly1[i].Item1)
+                if (startingPoint1.Item1 > poly1[i].Item1)
                 {
                     startingPoint1 = poly1[i];
+                    startingIndex1 = i;
                 }
 
-                if (endingPoint1.Item1 == poly1[i].Item1 && endingPoint1.Item2 > poly1[i].Item2)
+                if (endingPoint1.Item1 == poly1[i].Item1 && endingPoint1.Item2 < poly1[i].Item2)
                 {
                     endingPoint1 = poly1[i];
+                    endingIndex1 = i;
                 }
                 if (endingPoint1.Item1 < poly1[i].Item1)
                 {
                     endingPoint1 = poly1[i];
+                    endingIndex1 = i;
                 }
             }
 
 
             for (int i = 1; i < n2; i++)
             {
-                if (startingPoint2.Item1 == poly2[i].Item1 && startingPoint2.Item2 < poly2[i].Item2)
+                if (startingPoint2.Item1 == poly2[i].Item1 && startingPoint2.Item2 > poly2[i].Item2)
                 {
                     startingPoint2 = poly2[i];
+                    startingIndex2 = i;
                 }
                 if (startingPoint2.Item1 > poly2[i].Item1)
                 {
                     startingPoint2 = poly2[i];
+                    startingIndex2 = i;
                 }
 
-                if (endingPoint2.Item1 == poly2[i].Item1 && endingPoint2.Item2 > poly2[i].Item2)
+                if (endingPoint2.Item1 == poly2[i].Item1 && endingPoint2.Item2 < poly2[i].Item2)
                 {
                     endingPoint2 = poly2[i];
+                    endingIndex2 = i;
                 }
                 if (endingPoint2.Item1 < poly2[i].Item1)
                 {
                     endingPoint2 = poly2[i];
+                    endingIndex2 = i;
                 }
             }
 
-            Console.WriteLine();
-            Console.WriteLine($"s1: {startingPoint1}");
-            Console.WriteLine($"e1: {endingPoint1}");
-            Console.WriteLine($"s2: {startingPoint2}");
-            Console.WriteLine($"e2: {endingPoint2}");
+            //Console.WriteLine();
+            //Console.WriteLine($"s1: {startingPoint1}");
+            //Console.WriteLine($"e1: {endingPoint1}");
+            //Console.WriteLine($"s2: {startingPoint2}");
+            //Console.WriteLine($"e2: {endingPoint2}");
 
             //Dzielenie na górę i dół
 
             var upper1 = new List<(double, double)>();
             var down1 = new List<(double, double)>();
 
-            upper1.Add(startingPoint1);
             down1.Add(startingPoint1);
-
-            foreach(var i in poly1)
+            bool afterEnding = false;
+            for (int i = 1; i <= n1; i++)
             {
-                if((i.Item1 == startingPoint1.Item1 && i.Item2 == startingPoint1.Item2) || (i.Item1 == endingPoint1.Item1 && i.Item2 == endingPoint1.Item2))
+                if (poly1[(i + startingIndex1) % n1].Equals(endingPoint1))
                 {
-                    continue;
+                    afterEnding = true;
+                    //upper1.Add(poly1[(i + startingIndex1) % n1]);
+                    down1.Add(poly1[(i + startingIndex1) % n1]);
+                }
+                if (afterEnding)
+                {
+                    upper1.Add(poly1[(i + startingIndex1) % n1]);
                 }
                 else
                 {
-                    if( Cross(startingPoint1, endingPoint1, i) >=0)
-                    {
-                        upper1.Add(i);
-                    }
-                    else
-                    {
-                        down1.Add(i);
-                    }
+                    down1.Add(poly1[(i + startingIndex1) % n1]);
                 }
             }
-
-            upper1.Add(endingPoint1);
-            down1.Add(endingPoint1);
-
-            Console.Write("Upper1: ");
-            print(upper1);
-            Console.Write("Down1: ");
-            print(down1);
-
-
 
             var upper2 = new List<(double, double)>();
             var down2 = new List<(double, double)>();
 
-            upper2.Add(startingPoint2);
             down2.Add(startingPoint2);
+            afterEnding = false;
 
-            foreach (var i in poly2)
+            for (int i = 1; i <= n2; i++)
             {
-                if ((i.Item1 == startingPoint2.Item1 && i.Item2 == startingPoint2.Item2) || (i.Item1 == endingPoint2.Item1 && i.Item2 == endingPoint2.Item2))
+                if (poly2[(i + startingIndex2) % n2].Equals(endingPoint2))
                 {
-                    continue;
+                    afterEnding = true;
+                    //upper2.Add(poly2[(i + startingIndex2) % n2]);
+                    down2.Add(poly2[(i + startingIndex2) % n2]);
+                }
+                if (afterEnding)
+                {
+                    upper2.Add(poly2[(i + startingIndex2) % n2]);
                 }
                 else
                 {
-                    if (Cross(startingPoint2, endingPoint2, i) >= 0)
-                    {
-                        upper2.Add(i);
-                    }
-                    else
-                    {
-                        down2.Add(i);
-                    }
+                    down2.Add(poly2[(i + startingIndex2) % n2]);
                 }
             }
 
-            upper2.Add(endingPoint2);
-            down2.Add(endingPoint2);
 
-            Console.Write("Upper2: ");
-            print(upper2);
-            Console.Write("Down2: ");
-            print(down2);
+            //Console.Write("Upper1: ");
+            //print(upper1);
+            //Console.Write("Down1: ");
+            //print(down1);
 
-            return ConvexHull(poly);
+            //Console.Write("Upper2: ");
+            //print(upper2);
+            //Console.Write("Down2: ");
+            //print(down2);
+
+            //Łączenie tablic 
+
+            var down = mergeArraysDown(down1.ToArray(), down2.ToArray());
+            var up = mergeArraysUp(upper1.ToArray(), upper2.ToArray());
+
+            //Console.Write("Upper: ");
+            //print(up);
+            //Console.Write("Down: ");
+            //print(down);
+
+            List<(double, double)> convexHullDown = new List<(double, double)>();
+            convexHullDown.Add(down[0]);
+            convexHullDown.Add(down[1]);
+
+            for (int k = 2; k < down.Length; k++)
+            {
+
+                while (convexHullDown.Count >= 2 &&
+                        Cross(convexHullDown[convexHullDown.Count - 2], convexHullDown[convexHullDown.Count - 1], down[k]) <= 0)
+                    convexHullDown.RemoveAt(convexHullDown.Count - 1);
+
+                convexHullDown.Add(down[k]);
+            }
+
+            List<(double, double)> convexHullUp = new List<(double, double)>();
+            convexHullUp.Add(up[0]);
+            convexHullUp.Add(up[1]);
+
+            for (int k = 2; k < up.Length; k++)
+            {
+
+                while (convexHullUp.Count >= 2 &&
+                        Cross(convexHullUp[convexHullUp.Count - 2], convexHullUp[convexHullUp.Count - 1], up[k]) <= 0)
+                    convexHullUp.RemoveAt(convexHullUp.Count - 1);
+
+                convexHullUp.Add(up[k]);
+            }
+
+            //Console.Write("UpConvexHull: ");
+            //print(convexHullUp);
+
+            //Console.Write("DownConvexHull: ");
+            //print(convexHullDown);
+
+
+            List<(double, double)> convexHull = new List<(double, double)>();
+
+            foreach(var i in convexHullDown)
+            {
+                convexHull.Add(i);
+            }
+
+            for(int i = 1; i< convexHullUp.Count - 1; i++)
+            {
+                convexHull.Add(convexHullUp[i]);
+            }
+
+            return convexHull.ToArray();
 
         }
 
