@@ -155,8 +155,12 @@ namespace CSG
                         //Console.WriteLine();
                         //Console.Write(intersectionPoints.Value.Item1);
                         //Console.WriteLine();
+
                         sourceCopy.Vertices.AddAfter(LLvertex, intersectionPoints.Value.Item1);
                         clipCopy.Vertices.AddAfter(LLvertex2, intersectionPoints.Value.Item2);
+
+                        LLvertex.Next.Value.CorrespondingVertex = LLvertex2.Next;
+                        LLvertex2.Next.Value.CorrespondingVertex = LLvertex.Next;
 
                     }
 
@@ -230,30 +234,58 @@ namespace CSG
             Console.WriteLine($"numberOfIntersections: {numberOfIntersections}");
 
             List<Polygon> result = new List<Polygon>();
-            List<Vertex> tmpPolygon = new List<Vertex>();
+            //List<Vertex> tmpPolygon = new List<Vertex>();
 
-            List<Vertex> sourceNormalList = new List<Vertex>(sourceCopy.Vertices);
-            List<Vertex> clipNormalList = new List<Vertex>(clipCopy.Vertices);
+            //List<Vertex> sourceNormalList = new List<Vertex>(sourceCopy.Vertices);
+            //List<Vertex> clipNormalList = new List<Vertex>(clipCopy.Vertices);
 
-            bool[] sourceVerticesProcessed = new bool[sourceNormalList.Count];
-            bool[] clipVerticesProcessed = new bool[clipNormalList.Count];
+            //bool[] sourceVerticesProcessed = new bool[sourceNormalList.Count];
+            //bool[] clipVerticesProcessed = new bool[clipNormalList.Count];
 
-            int currentIndex = findFirstUnprocessedIntersection(sourceNormalList, sourceVerticesProcessed);
+            //int currentIndex = findFirstUnprocessedIntersection(sourceNormalList, sourceVerticesProcessed);
+
             List<Vertex> currentNewPolygon = new List<Vertex>();
             bool isSourceCurrentlyProcessed = true;
 
+            LinkedListNode<Vertex> node = findFirstUnprocessedIntersection(sourceCopy);
+            Console.WriteLine(node.Value);
+
             while (numberOfIntersections > numberOfIntersectionsProcessed)
             {
-
                 numberOfIntersectionsProcessed++;
+
+                currentNewPolygon.Add(node.Value);
+                if (node.Value.IsIntersection)
+                {
+                    node = node.Value.CorrespondingVertex;
+                }
+
+
             }
 
-            //if(numberOfIntersections > 0)
-            //{
-            //    Console.WriteLine($"intersection1: { sourceNormalList[findFirstUnprocessedIntersection(sourceNormalList, sourceVerticesProcessed)]   }");
-            //    Console.WriteLine($"intersection2: { clipNormalList[findIndexOfIntersectionInSecondPolygon(sourceNormalList[findFirstUnprocessedIntersection(sourceNormalList, sourceVerticesProcessed)], clipNormalList)]   }");
-            //}
 
+
+            if (numberOfIntersections > 0)
+            {
+                //Console.WriteLine(findFirstUnprocessedIntersection(sourceCopy));
+                //Console.WriteLine(findFirstUnprocessedIntersection(sourceCopy).CorrespondingVertex.Value);
+                //    Console.WriteLine($"intersection1: { sourceNormalList[findFirstUnprocessedIntersection(sourceNormalList, sourceVerticesProcessed)]   }");
+                //    Console.WriteLine($"intersection2: { clipNormalList[findIndexOfIntersectionInSecondPolygon(sourceNormalList[findFirstUnprocessedIntersection(sourceNormalList, sourceVerticesProcessed)], clipNormalList)]   }");
+            }
+
+
+            return null;
+        }
+
+        private LinkedListNode<Vertex> findFirstUnprocessedIntersection(Polygon p)
+        {
+            for (LinkedListNode<Vertex> LLvertex = p.Vertices.First; LLvertex != null; LLvertex = LLvertex.Next)
+            {
+                if (LLvertex.Value.IsIntersection)
+                {
+                    return LLvertex;
+                }
+            }
             return null;
         }
 
