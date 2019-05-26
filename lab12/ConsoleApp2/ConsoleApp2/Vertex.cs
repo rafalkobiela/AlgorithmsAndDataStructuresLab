@@ -69,7 +69,7 @@ namespace GraphX
         {
             switch(obj)
             {
-                case Vertex v: return this.X == v.X && this.Y == v.Y && this.IsEntry == v.IsEntry && this.IsIntersection == v.IsIntersection;
+                case Vertex v: return Math.Abs(this.X - v.X) < 1e-5 && Math.Abs(this.Y - v.Y) < 1e-5;
                 default: return false;
             }
         }
@@ -83,7 +83,7 @@ namespace GraphX
                 return true;
             if (object.ReferenceEquals(p1, null) || object.ReferenceEquals(p2, null))
                 return false;
-            return p1.X == p2.X && p1.Y == p2.Y;
+            return Math.Abs(p1.X - p2.X) < 1e-5 && Math.Abs(p1.Y - p2.Y) < 1e-5;
         }
         public static bool operator !=(Vertex p1, Vertex p2) { return !(p1 == p2); }
         public override string ToString()

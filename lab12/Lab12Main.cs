@@ -136,7 +136,7 @@ namespace CSG
                 {
 
                     if(!foundInExpectedResult[i] && !foundInResult[j])
-                        if(expectedResult[i].IsTheSame(result[j], true, out message))
+                        if(expectedResult[i].IsTheSame(result[j], false, out message))
                         {
                             foundInExpectedResult[i] = true;
                             foundInResult[j] = true;
@@ -165,7 +165,7 @@ namespace CSG
                         expectedPolygons.Append(expectedResult[i]);
                 }
 
-                return (Result.Success, $"X  There are {result.Count - foundInResultTrueCount} polygon(s) in your solution, which are not in expected result: {studentPolygons.ToString()}. And there are {expectedResult.Count - foundInExpectedResultTrueCount} polygon(s) in expected result, which are not found in yours: {expectedPolygons.ToString()}");
+                return (Result.WrongResult, $"X  There are {result.Count - foundInResultTrueCount} polygon(s) in your solution, which are not in expected result: {studentPolygons.ToString()}. And there are {expectedResult.Count - foundInExpectedResultTrueCount} polygon(s) in expected result, which are not found in yours: {expectedPolygons.ToString()}");
             }
         }
     }

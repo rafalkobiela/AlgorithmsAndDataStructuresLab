@@ -17,6 +17,7 @@ namespace CSG
         /// <returns>Zwraca dwa wierzchołki, które mają te same współrzędne, 
         /// ale różnią się względną pozycją na swoim odcinku (pierwszy zwracany wierzchołek leży na s1s2,
         /// a drugi na c1c2). Gdy odcinki się nie przecinają, zwracany jest null.</returns>
+        /// 
         public (Vertex, Vertex)? GetIntersectionPoints(Vertex s1, Vertex s2, Vertex c1, Vertex c2)
         {
             double d = (c2.Y - c1.Y) * (s2.X - s1.X) - (c2.X - c1.X) * (s2.Y - s1.Y);
@@ -116,9 +117,25 @@ namespace CSG
             //Console.WriteLine(source);
             //Console.WriteLine(clip);
             //Console.WriteLine();
+
+            Dictionary<LinkedListNode<Vertex>, List<Vertex>> sourceDict = new Dictionary<LinkedListNode<Vertex>, List<Vertex>>();
+            Dictionary<LinkedListNode<Vertex>, List<Vertex>> clipDict = new Dictionary<LinkedListNode<Vertex>, List<Vertex>>();
+
             for (LinkedListNode<Vertex> LLvertex = sourceCopy.Vertices.First; LLvertex != null; LLvertex = LLvertex.Next)
             {
+                sourceDict.Add(LLvertex, new List<Vertex>());
+                //Console.WriteLine("source");
+            }
 
+            for (LinkedListNode<Vertex> LLvertex2 = clipCopy.Vertices.First; LLvertex2 != null; LLvertex2 = LLvertex2.Next)
+            {
+                clipDict.Add(LLvertex2, new List<Vertex>());
+                //Console.WriteLine("clip");
+            }
+
+
+            for (LinkedListNode<Vertex> LLvertex = sourceCopy.Vertices.First; LLvertex != null; LLvertex = LLvertex.Next)
+            {
 
                 for (LinkedListNode<Vertex> LLvertex2 = clipCopy.Vertices.First; LLvertex2 != null; LLvertex2 = LLvertex2.Next)
                 {
@@ -146,33 +163,82 @@ namespace CSG
                         c2 = c2Node.Value;
                     }
 
-                    //Console.WriteLine($"({s1.ToString()},{s2.ToString()}), ({c1.ToString()},{c2.ToString()})");
 
                     (Vertex, Vertex)? intersectionPoints = GetIntersectionPoints(s1, s2, c1, c2);
 
+
                     if (intersectionPoints != null)
                     {
-                        //Console.WriteLine();
-                        //Console.Write(intersectionPoints.Value.Item1);
-                        //Console.WriteLine();
 
-                        sourceCopy.Vertices.AddAfter(LLvertex, intersectionPoints.Value.Item1);
-                        clipCopy.Vertices.AddAfter(LLvertex2, intersectionPoints.Value.Item2);
 
-                        LLvertex.Next.Value.CorrespondingVertex = LLvertex2.Next;
-                        LLvertex2.Next.Value.CorrespondingVertex = LLvertex.Next;
+                        Vertex tmp1 = intersectionPoints.Value.Item1;
+                        Vertex tmp2 = intersectionPoints.Value.Item2;
+                        if (sourceDict.ContainsKey(LLvertex))
+                        {
+                            sourceDict[LLvertex].Add(tmp1);
+                        }
+                        if (clipDict.ContainsKey(LLvertex2))
+                        {
+                            clipDict[LLvertex2].Add(intersectionPoints.Value.Item2);
+                        }
+
 
                     }
+                }
+            }
 
+            foreach (var i in sourceDict.Keys)
+            {
+                sourceDict[i].Sort((p, q) => -p.Distance.CompareTo(q.Distance) );
+                foreach (var j in sourceDict[i])
+                {
+                    sourceCopy.Vertices.AddAfter(i, j);
                 }
             }
 
 
-            //Console.WriteLine();
-            //Console.WriteLine(sourceCopy);
-            //Console.WriteLine(clipCopy);
+            foreach (var i in clipDict.Keys)
+            {
+                clipDict[i].Sort((p, q) => p.Distance.CompareTo(q.Distance) );
+                foreach (var j in clipDict[i])
+                {
+                    clipCopy.Vertices.AddAfter(i, j);
+                }
+            }
+
+
+            foreach(var llv in sourceCopy.Vertices)
+            {
+                if (llv.IsIntersection)
+                {
+                    llv.CorrespondingVertex = FindCorrespondingNode(llv, clipCopy);
+                }
+            }
+
+            foreach (var llv in clipCopy.Vertices)
+            {
+                if (llv.IsIntersection)
+                {
+                    llv.CorrespondingVertex = FindCorrespondingNode(llv, sourceCopy);
+                }
+            }
+
 
             return (sourceCopy, clipCopy);
+        }
+
+
+        public LinkedListNode<Vertex> FindCorrespondingNode(Vertex v, Polygon p)
+        {
+
+            for (LinkedListNode<Vertex> LLvertex = p.Vertices.First; LLvertex != null; LLvertex = LLvertex.Next)
+            {
+                if (LLvertex.Value.X == v.X && LLvertex.Value.Y == v.Y)
+                {
+                    return LLvertex;
+                }
+            }
+            return null;
         }
 
         /// <summary>
@@ -231,62 +297,143 @@ namespace CSG
                     numberOfIntersections++;
                 }
             }
-            Console.WriteLine($"numberOfIntersections: {numberOfIntersections}");
+            //Console.WriteLine($"numberOfIntersections: {numberOfIntersections}");
 
             List<Polygon> result = new List<Polygon>();
-            //List<Vertex> tmpPolygon = new List<Vertex>();
+            if (numberOfIntersections == 0)
+            {
+                if (IsInside(sourceCopy.Vertices.First, clipCopy) && !IsInside(clipCopy.Vertices.First, sourceCopy)) // clip większy
+                {
+                    return result;
+                }
+                else if (IsInside(clipCopy.Vertices.First, sourceCopy) && !IsInside(sourceCopy.Vertices.First, clipCopy))
+                {
+                    result.Add(clipCopy);
+                    return result;
+                }
+                else
+                {
+                    return result;
+                }
+            }
 
-            //List<Vertex> sourceNormalList = new List<Vertex>(sourceCopy.Vertices);
-            //List<Vertex> clipNormalList = new List<Vertex>(clipCopy.Vertices);
-
-            //bool[] sourceVerticesProcessed = new bool[sourceNormalList.Count];
-            //bool[] clipVerticesProcessed = new bool[clipNormalList.Count];
-
-            //int currentIndex = findFirstUnprocessedIntersection(sourceNormalList, sourceVerticesProcessed);
 
             List<Vertex> currentNewPolygon = new List<Vertex>();
-            bool isSourceCurrentlyProcessed = true;
+            bool isSourceCurrentlyProcessed = false;
 
-            LinkedListNode<Vertex> node = findFirstUnprocessedIntersection(sourceCopy);
-            Console.WriteLine(node.Value);
+            List<Vertex> processedIntersectionVertices = new List<Vertex>();
 
-            while (numberOfIntersections > numberOfIntersectionsProcessed)
+            LinkedListNode<Vertex> node = findFirstUnprocessedIntersection(clipCopy, processedIntersectionVertices);
+
+            bool moveToFront = true;
+
+            while (true)
             {
-                numberOfIntersectionsProcessed++;
+                //numberOfIntersectionsProcessed++;
+
+                if (currentNewPolygon.Count > 0 && node.Value.X == currentNewPolygon[0].X && node.Value.Y == currentNewPolygon[0].Y)
+                {
+                    result.Add(new Polygon(currentNewPolygon.ToArray()));
+                    if (numberOfIntersectionsProcessed >= numberOfIntersections)
+                    {
+                        break;
+                    }
+                    currentNewPolygon.Clear();
+                    node = findFirstUnprocessedIntersection(clipCopy, processedIntersectionVertices);
+                    isSourceCurrentlyProcessed = false;
+                }
 
                 currentNewPolygon.Add(node.Value);
+
                 if (node.Value.IsIntersection)
                 {
                     node = node.Value.CorrespondingVertex;
+                    isSourceCurrentlyProcessed = !isSourceCurrentlyProcessed;
+                    numberOfIntersectionsProcessed++;
+                }
+                if (node.Value.IsIntersection)
+                {
+                    processedIntersectionVertices.Add(node.Value);
+                    if (node.Value.IsEntry)
+                    {
+                        moveToFront = true;
+                    }
+                    else
+                    {
+                        moveToFront = false;
+                    }
+                }
+
+                if (moveToFront)
+                {
+                    node = node.Next;
+                    if (node == null)
+                    {
+                        if (isSourceCurrentlyProcessed)
+                        {
+                            node = source.Vertices.First;
+                        }
+                        else
+                        {
+                            node = clipCopy.Vertices.First;
+                        }
+                    }
+                }
+                else
+                {
+                    node = node.Previous;
+                    if (node == null)
+                    {
+                        if (isSourceCurrentlyProcessed)
+                        {
+                            node = source.Vertices.Last;
+                        }
+                        else
+                        {
+                            node = clipCopy.Vertices.Last;
+                        }
+                    }
                 }
 
 
+                //Console.Write($"proc{numberOfIntersectionsProcessed}, current polygon: ");
+                //foreach (var i in currentNewPolygon)
+                //{
+                //    Console.Write($"{i}, ");
+                //}
+                //Console.WriteLine();
+                //numberOfIntersectionsProcessed++;
+
+
             }
 
 
-
-            if (numberOfIntersections > 0)
-            {
-                //Console.WriteLine(findFirstUnprocessedIntersection(sourceCopy));
-                //Console.WriteLine(findFirstUnprocessedIntersection(sourceCopy).CorrespondingVertex.Value);
-                //    Console.WriteLine($"intersection1: { sourceNormalList[findFirstUnprocessedIntersection(sourceNormalList, sourceVerticesProcessed)]   }");
-                //    Console.WriteLine($"intersection2: { clipNormalList[findIndexOfIntersectionInSecondPolygon(sourceNormalList[findFirstUnprocessedIntersection(sourceNormalList, sourceVerticesProcessed)], clipNormalList)]   }");
-            }
-
-
-            return null;
+            return result;
         }
 
-        private LinkedListNode<Vertex> findFirstUnprocessedIntersection(Polygon p)
+        private LinkedListNode<Vertex> findFirstUnprocessedIntersection(Polygon p, List<Vertex> processedIntersectionVertices)
         {
             for (LinkedListNode<Vertex> LLvertex = p.Vertices.First; LLvertex != null; LLvertex = LLvertex.Next)
             {
-                if (LLvertex.Value.IsIntersection)
+                if (LLvertex.Value.IsIntersection && !isVertexInList(LLvertex.Value, processedIntersectionVertices))
                 {
                     return LLvertex;
                 }
             }
             return null;
+        }
+
+        private bool isVertexInList(Vertex v, List<Vertex> l)
+        {
+
+            foreach (var i in l)
+            {
+                if (i.X == v.X && i.Y == v.Y)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private int findFirstUnprocessedIntersection(List<Vertex> p, bool[] processedVertices)
@@ -307,7 +454,7 @@ namespace CSG
 
             for (int i = 0; i < p.Count; i++)
             {
-                if (v.X == p[i].X && v.Y == p[i].Y )
+                if (v.X == p[i].X && v.Y == p[i].Y)
                 {
                     return i;
                 }
