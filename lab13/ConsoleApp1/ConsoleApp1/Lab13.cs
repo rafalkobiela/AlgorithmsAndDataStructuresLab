@@ -1,8 +1,8 @@
-using System;
-using System.Linq;
 using ASD.Graphs;
-using System.Collections.Generic;
+using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Lab13
 {
@@ -35,9 +35,38 @@ namespace Lab13
 
             int n = taskGraph.VerticesCount;
 
+            bool allIsolated = true;
+            int maxV = 0;
+            double maxVal = 0;
+            for (int i = 0; i < n; i++)
+            {
+                if (taskGraph.OutEdges(i).Count() > 0)
+                {
+
+                    allIsolated = false;
+                    break;
+                }
+                if(maxVal < taskTimes[i])
+                {
+                    maxV = i;
+                    maxVal = taskTimes[i];
+                }
+            }
+
+            if (allIsolated)
+            {
+                startTimes = new double[n];
+                for (int i = 0; i < n; i++)
+                {
+                    startTimes[i] = maxVal- taskTimes[i];
+                }
+
+                criticalPath = new int[] { maxV };
+
+                return maxVal;
+            }
+
             var startingVertices = new List<int>();
-
-
 
             for (int i = 0; i < n; i++)
             {
@@ -49,7 +78,6 @@ namespace Lab13
 
             var endingVertices = new List<int>();
 
-
             for (int i = 0; i < n; i++)
             {
                 if (taskGraph.OutDegree(i) == 0)
@@ -60,105 +88,64 @@ namespace Lab13
 
             var reversedGraph = taskGraph.Reverse();
 
-            double currMax = 0;
-            double cur = 0;
+            Graph g = taskGraph.IsolatedVerticesGraph(true, n + 2);
+
+
+            for (int i = 0; i < n; i++)
+            {
+                foreach (var v in reversedGraph.OutEdges(i))
+                {
+                    g.AddEdge(i, v.To, -taskTimes[i]);
+
+                }
+            }
+
+            //n - zrodlo
+            //n+1 ujscie
 
             foreach (var i in endingVertices)
             {
-                var res = reversedGraph.GeneralSearchFrom<EdgesStack>(i
-                    , v =>
-                     {
-                         cur += taskTimes[v];
-                         if (startingVertices.Contains(v))
-                         {
-                             if (currMax < cur)
-                                 currMax = cur;
-                         }
-                         return true;
-                     }
-                    , v =>
-                    {
-                        cur -= taskTimes[v];
-                        return true;
-                    }
-                    , null);
+                g.AddEdge(n, i, 0);
+            }
+
+            foreach (var i in startingVertices)
+            {
+                g.AddEdge(i, n + 1, -taskTimes[i]);
             }
 
 
-            var currMaxTab = new double[n];
-            var currTab = new double[n];
+            g.DAGShortestPaths(n, out PathsInfo[] d);
+            double programTime = -d[n + 1].Dist;
 
             startTimes = new double[n];
 
-            foreach (int u in endingVertices)
+            for (int i = 0; i < n; i++)
             {
-                currMaxTab[u] = 0;
+                startTimes[i] = programTime + d[i].Dist - taskTimes[i];
             }
 
-            foreach (var i in endingVertices)
+            int startigVertexForCriticalPath = 0;
+
+            var longestPath = PathsInfo.ConstructPath(n, n + 1, d);
+
+            startigVertexForCriticalPath = longestPath[longestPath.Length - 1].From;
+
+
+            Edge[] path = PathsInfo.ConstructPath(n, startigVertexForCriticalPath, d);
+
+
+            criticalPath = new int[path.Length];
+
+
+            for (int i = 0; i < criticalPath.Length; i++)
             {
-
-                var res = reversedGraph.GeneralSearchFrom<EdgesStack>(i
-                    ,
-                    null
-                    //v =>
-                    //{
-                    //    if(prev != i && start)
-                    //    {
-                    //        start = false;
-                    //        currTab[v] = currTab[prev] + taskTimes[prev];
-                    //        if (startingVertices.Contains(v))
-                    //        {
-                    //            if (currTab[v] > currMaxTab[v])
-                    //                currMaxTab[v] = currTab[v];
-                    //        }
-                    //    }
-                    //    Console.WriteLine($"curr: {v}, prev: {prev}");
-                    //    prev = v;
-                    //    print(currTab);
-                    //    return true;
-                    //}
-                    , null
-                    //, v =>
-                    //{
-                    //    //currTab[v] = currTab[prev] + taskTimes[prev];
-                    //    prev = v;
-                    //    //cur -= taskTimes[v];
-                    //    return true;
-                    //}
-                    ,
-                    e =>
-                    {
-
-                        currTab[e.From] = currTab[e.To] + taskTimes[e.To];
-                        if (startingVertices.Contains(e.To))
-                        {
-                            if (currTab[e.To] > currMaxTab[e.To])
-                                currMaxTab[e.To] = currTab[e.To];
-                        }
-
-                        //Console.WriteLine($"curr: {e.To}, prev: {e.From}");
-                        //print(currTab);
-                        return true;
-                    },
-                    null);
+                criticalPath[i] = path[i].To;
             }
 
-
-            //Console.WriteLine("end:----------------------");
-            //print(currMaxTab);
-            startTimes = currMaxTab;
+            Array.Reverse(criticalPath);
 
 
-            while drugim trzeba liczyć od końca 
-
-
-            return currMax;
-
-
-
-
-
+            return -d[n + 1].Dist;
 
 
         }

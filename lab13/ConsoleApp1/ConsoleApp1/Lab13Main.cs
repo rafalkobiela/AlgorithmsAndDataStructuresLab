@@ -153,7 +153,7 @@ public class ProjectDurationTests : TestModule
                 {
                 var desc = "Wszystkie zadania równolegle";
                 var isolated = new AdjacencyListsGraph<SimpleAdjacencyList>(true, 10);
-                var tt = new ProjectDurationTest(isolated, new double[] {2,4,3, 7,4,6, 3,2,7, 4}, 7, new double[] {5,3,4,0,3,1,4,5,0,3}, 1, desc);
+                var tt = new ProjectDurationTest(isolated, new double[] {2,4,3, 7, 4, 6, 3, 2, 7, 4}, 7, new double[] {5,3,4,0,3,1,4,5,0,3}, 1, desc);
                 AddAll(tt);
                 }
 
