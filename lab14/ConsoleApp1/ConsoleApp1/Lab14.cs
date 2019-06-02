@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace ASD
@@ -21,7 +20,7 @@ namespace ASD
                 Console.Write($"{i} , ");
             }
             Console.WriteLine($" {a.IsWord}, {a.WordCount}");
-            
+
         }
         // klasy TrieNode NIE WOLNO ZMIENIAĆ!
         private class TrieNode
@@ -199,9 +198,9 @@ namespace ASD
         /// <returns>True jeśli udało się słowo usunąć, false jeśli słowa nie było w słowniku</returns>
         public bool Remove(string word)
         {
-            Console.WriteLine();
+            //Console.WriteLine();
 
-            Console.WriteLine($"word: {word}");
+            //Console.WriteLine($"word: {word}");
 
             TrieNode currNode = root;
 
@@ -215,6 +214,8 @@ namespace ASD
                 {
                     currNode = currNode.childs[word[i]];
                     nodesList.Add(currNode);
+                    //Console.Write($"-- {word[i]} ---");
+                    //print(currNode);
                 }
                 else
                 {
@@ -232,30 +233,46 @@ namespace ASD
             }
 
 
-            Console.WriteLine($"list len: {nodesList.Count}, word len: {word.Length}");
+            //Console.WriteLine($"list len: {nodesList.Count}, word len: {word.Length}");
 
-            foreach (var i in nodesList)
-            {
-                print(i);
-            }
+            //foreach (var i in nodesList)
+            //{
+            //    print(i);
+            //}
 
             for (int i = 0; i < nodesList.Count; i++)
             {
-                if (nodesList[i].WordCount > 2)
+                if (nodesList[i].WordCount > 1)
                 {
                     nodesList[i].WordCount--;
+                    if (i == nodesList.Count - 1)
+                    {
+                        nodesList[i].IsWord = false;
+                        //Console.WriteLine("dupa");
+                        break;
+                    }
                 }
-                else if (nodesList[i].WordCount == 2)
+                else if (nodesList[i].WordCount == 1)
                 {
 
+                    //Console.Write("Usuwam z tego węzła: ");
+                    //print(nodesList[i - 1]);
+                    //Console.WriteLine($"usuwanie jak jest 2 {word[i - 1]}, czy zawiera literke: {nodesList[i - 1].childs.ContainsKey(word[i - 1])}");
+                    nodesList[i].WordCount--;
+                    if (i == nodesList.Count - 1)
+                    {
+                        nodesList[i].childs.Remove(word[i - 1]);
 
-                    nodesList[i-1].childs.Remove(word[i-1]);
-                    //Console.WriteLine("usuwanie jak jest 1");
+                    }
+                    else
+                    {
+                        nodesList[i].childs.Remove(word[i]);
+
+                    }
+
+
                 }
-                else
-                {
-                    nodesList[i].IsWord = false;
-                }
+
             }
             //Console.WriteLine("3");
             return true;
