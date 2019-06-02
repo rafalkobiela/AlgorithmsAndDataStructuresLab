@@ -1,14 +1,28 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace ASD
 {
+
+
+
+
     /// <summary>
     /// Klasa drzewa prefiksowego z możliwością wyszukiwania słów w zadanej odległości edycyjnej
     /// </summary>
     public class Lab14_Trie : System.MarshalByRefObject
     {
 
+        private void print(TrieNode a)
+        {
+            foreach (var i in a.childs.Keys)
+            {
+                Console.Write($"{i} , ");
+            }
+            Console.WriteLine($" {a.IsWord}, {a.WordCount}");
+            
+        }
         // klasy TrieNode NIE WOLNO ZMIENIAĆ!
         private class TrieNode
         {
@@ -89,8 +103,6 @@ namespace ASD
                 //Console.Write(i);
                 if (currNode.childs.ContainsKey(newWord[i]))
                 {
-
-
                     currNode = currNode.childs[newWord[i]];
                     //currNode.WordCount++;
                     //Console.WriteLine(currNode.WordCount);
@@ -122,16 +134,17 @@ namespace ASD
             //Console.WriteLine();
 
             currNode = root;
+            currNode.WordCount++;
             if (sucess)
             {
                 for (int i = 0; i < newWord.Length; i++)
                 {
-                    currNode.WordCount++;
                     currNode = currNode.childs[newWord[i]];
-                    if(i == newWord.Length - 1)
-                    {
-                        currNode.WordCount++;
-                    }
+                    currNode.WordCount++;
+                    //if (i == newWord.Length - 1)
+                    //{
+                    //    currNode.WordCount++;
+                    //}
                 }
 
             }
@@ -186,33 +199,66 @@ namespace ASD
         /// <returns>True jeśli udało się słowo usunąć, false jeśli słowa nie było w słowniku</returns>
         public bool Remove(string word)
         {
+            Console.WriteLine();
 
-            if(Contains(word))
+            Console.WriteLine($"word: {word}");
+
+            TrieNode currNode = root;
+
+            List<TrieNode> nodesList = new List<TrieNode>();
+            nodesList.Add(currNode);
+
+            for (int i = 0; i < word.Length; i++)
             {
 
-                TrieNode currNode = root;
-
-                allWordsWithPrefix = new List<string>();
-
-                for (int i = 0; i < word.Length; i++)
+                if (currNode.childs.ContainsKey(word[i]))
                 {
-                    //Console.Write(i);
-                    if (currNode.childs.ContainsKey(word[i]))
+                    currNode = currNode.childs[word[i]];
+                    nodesList.Add(currNode);
+                }
+                else
+                {
+                    //Console.WriteLine("1");
+                    return false;
+                }
+                if (i == word.Length - 1)
+                {
+                    if (!currNode.IsWord)
                     {
-                        if(currNode.WordCount <= 2)
-                        currNode = currNode.childs[word[i]];
-                        {
-                            currNode.childs.Remove(word[i]);
-                            return true;
-                        }
+                        //Console.WriteLine("2");
+                        return false;
                     }
                 }
-
-
-                return true;
             }
 
-            return false;
+
+            Console.WriteLine($"list len: {nodesList.Count}, word len: {word.Length}");
+
+            foreach (var i in nodesList)
+            {
+                print(i);
+            }
+
+            for (int i = 0; i < nodesList.Count; i++)
+            {
+                if (nodesList[i].WordCount > 2)
+                {
+                    nodesList[i].WordCount--;
+                }
+                else if (nodesList[i].WordCount == 2)
+                {
+
+
+                    nodesList[i-1].childs.Remove(word[i-1]);
+                    //Console.WriteLine("usuwanie jak jest 1");
+                }
+                else
+                {
+                    nodesList[i].IsWord = false;
+                }
+            }
+            //Console.WriteLine("3");
+            return true;
         }
 
         /// <summary>
@@ -227,7 +273,7 @@ namespace ASD
         {
 
             TrieNode currNode = root;
-            
+
             allWordsWithPrefix = new List<string>();
 
             for (int i = 0; i < startWith.Length; i++)
@@ -242,7 +288,7 @@ namespace ASD
                     //Console.WriteLine("a");
                     return allWordsWithPrefix;
                 }
-                if(i == startWith.Length - 1)
+                if (i == startWith.Length - 1)
                 {
                     if (currNode.IsWord)
                     {
@@ -258,14 +304,13 @@ namespace ASD
             return allWordsWithPrefix;
         }
 
-
-        List<string> allWordsWithPrefix;
-        string currWord;
+        private List<string> allWordsWithPrefix;
+        private string currWord;
 
         private void AllWordsRecursiveHelper(TrieNode node)
         {
 
-            foreach(var i in node.childs.Keys)
+            foreach (var i in node.childs.Keys)
             {
                 currWord += i;
 
@@ -276,7 +321,7 @@ namespace ASD
                 }
 
                 AllWordsRecursiveHelper(node.childs[i]);
-                
+
                 currWord = currWord.Substring(0, currWord.Length - 1);
             }
         }
