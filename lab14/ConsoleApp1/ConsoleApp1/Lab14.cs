@@ -260,6 +260,7 @@ namespace ASD
                     //Console.WriteLine($"usuwanie jak jest 2 {word[i - 1]}, czy zawiera literke: {nodesList[i - 1].childs.ContainsKey(word[i - 1])}");
                     nodesList[i].WordCount--;
                     if (i == nodesList.Count - 1)
+
                     {
                         nodesList[i].childs.Remove(word[i - 1]);
 
