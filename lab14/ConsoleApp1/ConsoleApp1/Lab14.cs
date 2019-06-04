@@ -344,6 +344,57 @@ namespace ASD
             }
         }
 
+
+        public void print(List<int[]> tab)
+        {
+            for (int i = 0; i < tab.Count; i++)
+            {
+                for (int j = 0; j < tab[i].Length; j++)
+                {
+                    Console.Write($"{tab[i][j]}, ");
+                }
+                Console.WriteLine();
+            }
+            Console.WriteLine();
+        }
+
+
+        public int LevenshteinDistance(string word1, string word2)
+        {
+            int n1 = word1.Length;
+            int n2 = word2.Length;
+
+            //int[,] changesMatrix = new int[n1 + 1, n2 + 1];
+
+            for (int i = 0; i < n1 + 1; i++)
+            {
+                changesMatrix[i][0] = i;
+            }
+
+            for (int i = 0; i < n2 + 1; i++)
+            {
+                changesMatrix[0][i] = i;
+            }
+
+            for (int i = 1; i < n1 + 1; i++)
+            {
+                for (int j = 1; j < n2 + 1; j++)
+                {
+                    if (word1[i - 1] == word2[j - 1])
+                    {
+                        changesMatrix[i][j] = Math.Min(Math.Min(changesMatrix[i - 1][j] + 1, changesMatrix[i][j - 1] + 1), changesMatrix[i - 1][j - 1]);
+                    }
+                    else
+                    {
+                        changesMatrix[i][j] = Math.Min(Math.Min(changesMatrix[i - 1][j] + 1, changesMatrix[i][j - 1] + 1), changesMatrix[i - 1][j - 1] + 1);
+                    }
+                }
+            }
+
+            return changesMatrix[n1][n2];
+        }
+
+
         /// <summary>
         /// Wyszukuje w słowniku wszystkie słowa w podanej odległości edycyjnej od zadanego słowa
         /// Wynik jest w porządku alfabetycznym ze względu na słowa (a nie na odległość).
@@ -357,8 +408,76 @@ namespace ASD
         /// <returns>Lista zawierająca pary (słowo, odległość) spełniające warunek odległości edycyjnej</returns>
         public List<(string, int)> Search(string word, int distance = 1)
         {
-            return null;
+
+            allWordsWithDistances = new List<(string, int)>();
+            changesMatrix = new List<int[]>();
+            int[] tmpTab = new int[word.Length + 1];
+
+            for (int i = 0; i < word.Length + 1; i++)
+            {
+                tmpTab[i] = i;
+            }
+
+            ReallyAllWordsRecursiveHelper(root, word, distance);
+
+
+            return allWordsWithDistances;
         }
+
+        List<(string, int)> allWordsWithDistances;
+        List<int[]> changesMatrix;
+        private void ReallyAllWordsRecursiveHelper(TrieNode node, string wordToMeasureDist, int distance)
+        {
+
+            foreach (var i in node.childs.Keys)
+            {
+                currWord += i;
+
+                TrieNode tmpNode = node.childs[i];
+
+                int[] tmpTab = new int[wordToMeasureDist.Length + 1];
+                tmpTab[0] = changesMatrix.Count ;
+                changesMatrix.Add(tmpTab);
+                Console.WriteLine($"Curr word: {currWord}");
+
+                print(changesMatrix);
+                for (int j = 1; j < wordToMeasureDist.Length + 1; j++)
+                {
+                    int n = changesMatrix.Count;
+                    if (i == wordToMeasureDist[j - 1])
+                    {
+                        changesMatrix[n - 1][j] = Math.Min(Math.Min(changesMatrix[n - 1][j] + 1,
+                                                                changesMatrix[n - 1][j - 1] + 1),
+                                                       changesMatrix[n - 1][j - 1]);
+                    }
+                    else
+                    {
+                        changesMatrix[changesMatrix.Count - 1][j] = Math.Min(Math.Min(changesMatrix[n - 1][j] + 1,
+                                                                changesMatrix[n - 1][j - 1] + 1),
+                                                       changesMatrix[n - 1][j - 1] + 1);
+                    }
+                }
+
+
+                if (tmpNode.IsWord)
+                {
+                    int currDist = changesMatrix[changesMatrix.Count - 1][wordToMeasureDist.Length];
+                    if (currDist <= distance)
+                    {
+                        allWordsWithDistances.Add((currWord, currDist));
+                    }
+                }
+
+                if (currWord.Length <= distance + wordToMeasureDist.Length)
+                {
+                    ReallyAllWordsRecursiveHelper(node.childs[i], wordToMeasureDist, distance);
+                }
+
+                currWord = currWord.Substring(0, currWord.Length - 1);
+                changesMatrix.RemoveAt(changesMatrix.Count - 1);
+            }
+        }
+
 
     }
 }
